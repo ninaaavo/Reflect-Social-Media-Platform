@@ -236,6 +236,69 @@ body {
   color: #cbd5f5;
 }
 
+/* -------------- Comment part CSS --------------- */
+.comment-toggle {
+  margin-top: 16px;
+  border: none;
+  background: rgba(255, 255, 255, 0.08);
+  color: #e5e7eb;
+  border-radius: 999px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.comment-section {
+  margin-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  padding-top: 14px;
+}
+
+.hidden {
+  display: none;
+}
+
+.comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.comment {
+  background: rgba(255, 255, 255, 0.08);
+  padding: 10px;
+  border-radius: 10px;
+  color: #e5e7eb;
+}
+
+.no-comments {
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+.comment-input-area {
+  display: flex;
+  gap: 8px;
+}
+
+.comment-input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
+}
+
+.send-comment-btn {
+  padding: 0 14px;
+  border-radius: 10px;
+  border: none;
+  background: #e5e7eb;
+  font-weight: bold;
+  cursor: pointer;
+}
+
 /* -------------- Profile Main panel CSS --------------- */
 
 

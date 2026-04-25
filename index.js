@@ -1,8 +1,13 @@
 const express = require('express')
+
 const app = express();
+app.use(express.static("public"));
+app.use(express.urlencoded({ extended: true }));
 const PORT = 8080;
 
 const unlockedPosts = [];
+const answers = {}; 
+
 
 app.set("view engine", "ejs");
 app.use(express.static("public"));
@@ -22,6 +27,11 @@ app.get("/", (req, res) => {
     postAuthor: "Nina",
     postText:
       "I feel like every platform slowly turns into an ad machine. At first it feels like a place to connect, then suddenly every few posts are sponsored, recommended, or trying to sell me something.",
+    comments: [
+      "Yeah, it feels like the actual people are buried under sponsored posts.",
+      "I honestly stopped noticing ads because there are so many now.",
+      "The worst is when the ad looks like a normal post."
+    ],
     action: "/answer",
   },
   {
@@ -30,6 +40,11 @@ app.get("/", (req, res) => {
     postAuthor: "StudentUser23",
     postText:
       "I waited so long just to get food that I almost gave up. I get that places get busy, but at some point it feels like the system just is not built for the amount of people using it.",
+    comments: [
+      "Worcester gets so packed during lunch, it is actually wild.",
+      "I feel like they need better traffic flow or more stations open.",
+      "Sometimes the line looks worse than it actually is, but today was bad."
+    ],
     action: "/answer",
   },
   {
@@ -38,6 +53,11 @@ app.get("/", (req, res) => {
     postAuthor: "Maya",
     postText:
       "I think apps should have stronger default screen time limits. Most people do not open an app planning to lose an hour, but the design makes it really easy to keep going.",
+    comments: [
+      "Default limits would help because most people never change settings.",
+      "I agree, but I also feel like people should still be able to override it.",
+      "Infinite scroll is the real villain here."
+    ],
     action: "/answer",
   }
 ];
@@ -47,20 +67,25 @@ app.get("/", (req, res) => {
     userName: "Nina",
     currentPage: "newsfeed",
     prompts,
-    unlockedPosts
+    unlockedPosts,
+    answers
   });
 });
 
-app.post("/answer/:id", (req, res) => {
+app.post("/answer/:id", (req, res) => { 
   const id = parseInt(req.params.id);
+  const answer = req.body.answer;
 
+  // unlock post
   if (!unlockedPosts.includes(id)) {
     unlockedPosts.push(id);
   }
 
+  // store answer
+  answers[id] = answer;
+
   res.redirect("/");
 });
-
 
 app.post("/reset", (req, res) => {
   unlockedPosts.length = 0;
