@@ -109,7 +109,7 @@
   <script src="/js/prompt.js" defer></script>
   <template id="comment-template">
     <%- include("components/comment", {
-      comment: { text: "" },
+      comment: { text: "", createdAt: "" },
       user: { name: "", avatar: "" }
     }) %>
   </template>

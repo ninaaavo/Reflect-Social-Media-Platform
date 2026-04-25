@@ -1,4 +1,4 @@
-<div class="comment">
+<div class="comment"> 
   <img 
     class="comment-avatar" 
     src="<%= user.avatar %>" 
@@ -6,7 +6,12 @@
   />
 
   <div class="comment-body">
-    <div class="comment-username"><%= user.name %></div>
+    <div class="comment-header">
+      <span class="comment-username"><%= user.name %></span>
+      
+    </div>
+
     <div class="comment-text"><%= comment.text %></div>
+    <div class="comment-time"><%= comment.createdAt || "" %></div>
   </div>
 </div>

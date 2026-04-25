@@ -40,10 +40,15 @@ function sendComment(button) {
   const template = document.getElementById("comment-template");
   const newComment = template.content.firstElementChild.cloneNode(true);
 
+  // create timestamp
+  const now = new Date();
+  const time = now.toLocaleString(); // simple + clean
+
   newComment.querySelector(".comment-avatar").src = user.avatar;
   newComment.querySelector(".comment-avatar").alt = user.name;
   newComment.querySelector(".comment-username").textContent = user.name;
   newComment.querySelector(".comment-text").textContent = text;
+  newComment.querySelector(".comment-time").textContent = time;
 
   const emptyMessage = list.querySelector(".no-comments");
   if (emptyMessage) emptyMessage.remove();

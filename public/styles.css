@@ -10,6 +10,7 @@
   --card-bg: #ece8eeb2;
 
   --post-bg: #412c5a;
+  --post-muted: #afacb1;
   --save-yellow: #e6ae4e;
 }
 
@@ -326,6 +327,18 @@ body {
 
 .comment:hover {
   background: rgba(255, 255, 255, 0.1);
+}
+
+.comment-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.comment-time {
+  font-size: 0.6rem;
+  padding-top: 2px;
+  color: var(--post-muted);
 }
 
 /* avatar */
