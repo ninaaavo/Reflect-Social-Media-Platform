@@ -246,7 +246,6 @@ body {
 /* -------------- Comment part CSS --------------- */
 
 .comment-section {
-  margin-top: 14px;
   border-top: 1px solid rgba(255, 255, 255, 0.12);
   padding-top: 14px;
 }
@@ -318,6 +317,7 @@ body {
   display: flex;
   align-self: flex-end;
   gap: 8px;
+  margin: -10px 0;
 }
 
 .icon-btn {
