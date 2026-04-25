@@ -1,4 +1,4 @@
-const express = require('express')
+const express = require('express');
 
 const app = express();
 app.use(express.static("public"));
@@ -77,7 +77,9 @@ app.use(express.json());
 app.get("/profile", (req, res) => {
   res.render("layout", {
     userName: "Nina",
-    currentPage: "profile"
+    currentPage: "profile",
+    currentUser,
+    userInfo
   });
 });
 
