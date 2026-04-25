@@ -4,10 +4,20 @@
   <p class="post-content"><%= postText %></p>
 
   <!-- Comment Icon -->
-  <button class="comment-toggle" onclick="toggleComments(this)">
-    💬
-  </button>
+  <div class="post-buttons">
+    <button class="icon-btn comment-toggle" onclick="toggleComments(this)">
+      <svg class="comment-icon" viewBox="0 -2 28 28">
+        <path d="m14 2c-.038 0-.083-.001-.128-.001-2.098 0-4.102.399-5.942 1.124l.11-.038c-1.74.644-3.217 1.645-4.4 2.922l-.007.007c-.99 1.036-1.608 2.436-1.633 3.98v.005c.013 1.258.432 2.415 1.131 3.351l-.011-.015c.835 1.131 1.885 2.053 3.096 2.719l.049.025 1.36.782-.426 1.498c-.272 1.021-.646 1.915-1.122 2.741l.029-.054c1.651-.691 3.071-1.59 4.313-2.686l-.017.014.672-.594.89.094c.607.077 1.312.122 2.028.125h.004c.038 0 .083.001.128.001 2.098 0 4.102-.399 5.942-1.124l-.11.038c1.74-.644 3.217-1.645 4.4-2.922l.007-.007c1.009-1.025 1.632-2.432 1.632-3.984s-.623-2.96-1.633-3.985l.001.001c-1.19-1.284-2.666-2.286-4.329-2.904l-.078-.025c-1.73-.687-3.735-1.086-5.833-1.086z"/>
+      </svg>
+    </button>
 
+    <button class="icon-btn save-toggle" onclick="toggleSave(this)">
+      <svg class="save-icon" viewBox="0 0 24 24">
+        <path fill-rule="evenodd" clip-rule="evenodd"
+          d="M6.75 6L7.5 5.25H16.5L17.25 6V19.3162L12 16.2051L6.75 19.3162V6ZM8.25 6.75V16.6838L12 14.4615L15.75 16.6838V6.75H8.25Z"/>
+      </svg>
+    </button>
+  </div>
   <!-- Comment Section -->
   <div class="comment-section hidden">
     

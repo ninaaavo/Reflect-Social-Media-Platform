@@ -10,6 +10,7 @@
   --card-bg: #ece8eeb2;
 
   --post-bg: #412c5a;
+  --save-yellow: #e6ae4e;
 }
 
 * {
@@ -35,6 +36,8 @@ body {
   max-width: 1400px;
   margin: 0 auto;
 }
+
+
 
 /* -------------- Nav Bar CSS --------------- */
 
@@ -122,6 +125,7 @@ body {
 
 .prompt-card-wrapper{
   width: 60%;
+  min-width: 640px;
 }
 .prompt-card {
   background: white;
@@ -204,6 +208,7 @@ body {
   border-radius: 18px;
   padding: 24px;
   width: 60%;
+  min-width: 640px; 
 
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
 
@@ -239,15 +244,6 @@ body {
 }
 
 /* -------------- Comment part CSS --------------- */
-.comment-toggle {
-  margin-top: 16px;
-  border: none;
-  background: rgba(255, 255, 255, 0.08);
-  color: #e5e7eb;
-  border-radius: 999px;
-  padding: 8px 12px;
-  cursor: pointer;
-}
 
 .comment-section {
   margin-top: 14px;
@@ -264,6 +260,22 @@ body {
   flex-direction: column;
   gap: 10px;
   margin-bottom: 12px;
+  max-height: 100px;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+.comments-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.comments-list::-webkit-scrollbar-track {
+  background: transparent; 
+}
+
+.comments-list::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.3); 
+  border-radius: 10px;
 }
 
 .comment {
@@ -288,8 +300,9 @@ body {
   padding: 10px;
   border-radius: 10px;
   border: none;
-  background: rgba(255, 255, 255, 0.08);
-  color: white;
+  background: rgba(255, 255, 255, 0.88);
+  color: var(--primary-text);
+  font-family:system-ui, sans-serif; 
 }
 
 .send-comment-btn {
@@ -299,6 +312,53 @@ body {
   background: #e5e7eb;
   font-weight: bold;
   cursor: pointer;
+}
+
+.post-buttons {
+  display: flex;
+  align-self: flex-end;
+  gap: 8px;
+}
+
+.icon-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.icon-btn:hover {
+  transform: scale(1.1);
+}
+
+.comment-icon{
+  width: 20px;
+  height: 20px;
+  display: block;
+
+  /* collapsed state = outline */
+  fill: transparent;
+  stroke: #ece8ee;
+  stroke-width: 2;
+}
+.save-icon {
+  width: 26px;
+  height: 26px;
+  display: block;
+
+  /* collapsed state = outline */
+  /* fill: transparent; */
+  fill: #ece8ee;
+  stroke-width: 1.3;
+}
+
+.save-toggle.active svg {
+  stroke: var(--save-yellow);
+  fill: var(--save-yellow);
 }
 
 /* -------------- Profile Main panel CSS --------------- */

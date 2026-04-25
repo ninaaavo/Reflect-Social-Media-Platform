@@ -4,6 +4,11 @@ function toggleComments(button) {
   const section = card.querySelector(".comment-section");
 
   section.classList.toggle("hidden");
+  btn.classList.toggle("active");
+}
+
+function toggleSave(btn) {
+  btn.classList.toggle("active");
 }
 
 function sendComment(button) {
