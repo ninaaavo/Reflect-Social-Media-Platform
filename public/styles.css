@@ -288,29 +288,64 @@ body {
   color: #94a3b8;
   font-size: 0.9rem;
 }
-
 .comment-input-area {
-  display: flex;
-  gap: 8px;
+  width: 100%;
+}
+
+.input-wrapper {
+  position: relative;
+  width: 100%;
 }
 
 .comment-input {
-  flex: 1;
-  padding: 10px;
-  border-radius: 10px;
+  width: 100%;
+  min-height: 36px;
+  max-height: 120px;
+
+  padding: 10px 40px 10px 12px;
+
+  border-radius: 12px;
   border: none;
+  outline: none;
+
+  resize: none;
+  overflow-y: hidden;
+
   background: rgba(255, 255, 255, 0.88);
   color: var(--primary-text);
-  font-family:system-ui, sans-serif; 
+  font-family: system-ui, sans-serif;
+  font-size: 1rem;
+  line-height: 20px;
+
+  box-sizing: border-box;
+}
+
+.comment-input::-webkit-scrollbar {
+  display: none;
 }
 
 .send-comment-btn {
-  padding: 0 14px;
-  border-radius: 10px;
+  position: absolute;
+  right: 10px;
+  bottom: 14px;
+
+  width: 1.2rem;
+  height: 1.2rem;
+
+  border-radius: 50%;
   border: none;
+
   background: #e5e7eb;
-  font-weight: bold;
   cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.send-comment-btn:hover {
+  transform: scale(1.1);
 }
 
 .post-buttons {

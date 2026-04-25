@@ -7,6 +7,17 @@ function toggleComments(button) {
   btn.classList.toggle("active");
 }
 
+function autoResize(el) {
+  el.style.height = "36px";
+  el.style.height = Math.min(el.scrollHeight, 120) + "px";
+
+  if (el.scrollHeight > 120) {
+    el.style.overflowY = "auto";
+  } else {
+    el.style.overflowY = "hidden";
+  }
+}
+
 function toggleSave(btn) {
   btn.classList.toggle("active");
 }
