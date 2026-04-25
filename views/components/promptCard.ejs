@@ -1,0 +1,22 @@
+<div class="prompt-card">
+  <p class="prompt-question">
+    <%= question %>
+  </p>
+
+  <form action="<%= action %>" method="POST" class="answer-form">
+    <div class="input-wrapper">
+      <textarea
+        name="answer"
+        placeholder="Write your thoughts..."
+        class="answer-input"
+        required
+      ></textarea>
+
+      <button type="submit" class="submit-icon-btn" aria-label="Submit answer">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M3 12l18-9-9 18-2-7-7-2z"/>
+        </svg>
+      </button>
+    </div>
+  </form>
+</div>

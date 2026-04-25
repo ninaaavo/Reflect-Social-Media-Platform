@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Reflect</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+
+<body>
+  <div class="page-shell">
+    <form action="/reset" method="POST" class="dev-reset-form">
+      <button type="submit" class="dev-reset-btn">
+        🔄 Reset Feed (Dev)
+      </button>
+    </form>
+    <header class="navbar">
+
+        <div class="greeting">
+           ⊹ ࣪ ˖ Hello there, <span class="user-name"><%= userName %></span>
+        </div>
+
+        <div class="logo">
+          REFLECT
+        </div>
+
+        <nav class="nav-links">
+          <a
+            href="/profile"
+            class="nav-link <%= currentPage === 'profile' ? 'active' : '' %>"
+          >
+            Your Profile
+          </a>
+
+          <a
+            href="/"
+            class="nav-link <%= currentPage === 'newsfeed' ? 'active' : '' %>"
+          >
+            Newsfeed
+          </a>
+        </nav>
+
+    </header>
+
+    <main class="main-panel">
+      <% if (currentPage === 'profile') { %>
+        <section class="content-section">
+          <h1 class="page-title">Your Profile</h1>
+
+          <div class="stats-grid">
+            <div class="stat-card">
+              <p class="stat-label">Prompts Answered</p>
+              <p class="stat-value">24</p>
+            </div>
+
+            <div class="stat-card">
+              <p class="stat-label">Reflections</p>
+              <p class="stat-value">18</p>
+            </div>
+
+            <div class="stat-card">
+              <p class="stat-label">Opinion Shifts</p>
+              <p class="stat-value">7</p>
+            </div>
+          </div>
+        </section>
+
+      <% } else if (currentPage === 'newsfeed') { %>
+        <section class="content-section">
+          <% prompts.forEach((prompt, index) => { %>
+
+            <% if (unlockedPosts.includes(index)) { %>
+              
+              <!-- SHOW POST AFTER UNLOCK -->
+              <%- include("components/postCard", {
+                postTitle: prompt.postTitle,
+                postAuthor: prompt.postAuthor,
+                postText: prompt.postText
+              }) %>
+
+            <% } else { %>
+
+              <!-- SHOW PROMPT FIRST -->
+              <%- include("components/promptCard", {
+                question: prompt.question,
+                action: "/answer/" + index,
+                placeholder: prompt.placeholder,
+                buttonText: prompt.buttonText
+              }) %>
+
+            <% } %>
+
+          <% }) %>
+        </section>
+      <% } %>
+    </main>
+
+  </div>
+</body>
+</html>
