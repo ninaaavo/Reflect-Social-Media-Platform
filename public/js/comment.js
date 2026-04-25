@@ -23,7 +23,6 @@ function toggleSave(btn) {
 }
 
 function sendComment(button) {
-  console.log("send comment called");
   const card = button.closest(".post-card");
   const input = card.querySelector(".comment-input");
   const list = card.querySelector(".comments-list");
@@ -31,10 +30,25 @@ function sendComment(button) {
   const text = input.value.trim();
   if (!text) return;
 
-  const comment = document.createElement("div");
-  comment.className = "comment";
-  comment.innerHTML = `<p>${text}</p>`;
+  const uid = window.currentUser;
 
-  list.appendChild(comment);
+  const user = window.userInfo.find(user => user.uid === uid) || {
+    name: "Unknown User",
+    avatar: "/images/default.jpg"
+  };
+
+  const template = document.getElementById("comment-template");
+  const newComment = template.content.firstElementChild.cloneNode(true);
+
+  newComment.querySelector(".comment-avatar").src = user.avatar;
+  newComment.querySelector(".comment-avatar").alt = user.name;
+  newComment.querySelector(".comment-username").textContent = user.name;
+  newComment.querySelector(".comment-text").textContent = text;
+
+  const emptyMessage = list.querySelector(".no-comments");
+  if (emptyMessage) emptyMessage.remove();
+
+  list.appendChild(newComment);
+  list.scrollTop = list.scrollHeight;
   input.value = "";
 }

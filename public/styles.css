@@ -243,7 +243,7 @@ body {
   color: #cbd5f5;
 }
 
-/* -------------- Comment part CSS --------------- */
+/* -------------- Display current comment part CSS --------------- */
 
 .comment-section {
   border-top: 1px solid rgba(255, 255, 255, 0.12);
@@ -259,7 +259,7 @@ body {
   flex-direction: column;
   gap: 10px;
   margin-bottom: 12px;
-  max-height: 100px;
+  max-height: 200px;
   overflow-y: auto;
   padding-right: 5px;
 }
@@ -278,16 +278,60 @@ body {
 }
 
 .comment {
-  background: rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+
   padding: 10px;
   border-radius: 10px;
-  color: #e5e7eb;
+
+  background: rgba(255, 255, 255, 0.06);
+  transition: background 0.2s ease;
+}
+
+.comment:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* avatar */
+.comment-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+/* right side */
+.comment-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 90%;
+}
+
+/* username */
+.comment-username {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* actual text */
+.comment-text {
+  font-size: 0.9rem;
+  line-height: 1.35;
+  color: rgba(229, 231, 235, 0.85);
+  overflow-wrap: break-word;
 }
 
 .no-comments {
   color: #94a3b8;
   font-size: 0.9rem;
 }
+
+/* -------------- Comment input part CSS --------------- */
+
 .comment-input-area {
   width: 100%;
 }
