@@ -103,9 +103,15 @@
           <% }) %>
         </section>
       <% } %>
+
+      
     </main>
 
-  </div>
+    <!-- Write Post Button -->
+    <button class="write-post-btn" onclick="openWritePost()">
+      +
+    </button>
+  </div>  
   <script src="/js/prompt.js" defer></script>
   <template id="comment-template">
     <%- include("components/comment", {
