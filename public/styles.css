@@ -120,12 +120,14 @@ body {
 
 /* -------------- Prompt Card CSS --------------- */
 
+.prompt-card-wrapper{
+  width: 60%;
+}
 .prompt-card {
   background: white;
   border-radius: 18px;
   padding: 24px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
-  width: 60%;
 }
 
 .prompt-question {
@@ -300,7 +302,6 @@ body {
 }
 
 /* -------------- Profile Main panel CSS --------------- */
-
 
 .stats-grid {
   display: grid;
