@@ -2,12 +2,14 @@
   --primary-text: #1A3263;
   --light-text: #9f9fb1;
   --bg-gradient-start: #b4d3d9;
-  --bg-gradient-mid: #bda6ce;
-  --bg-gradient-end: #9b8ec7;
+  --bg-gradient-mid: #a086b3;
+  --bg-gradient-end: #453b69;
 
   --card-highlight: #816bc9;
 
   --card-bg: #ece8eeb2;
+
+  --post-bg: #412c5a;
 }
 
 * {
@@ -38,7 +40,7 @@ body {
 
 .navbar {
   background: rgba(255, 255, 255, 0.8);
-  border-radius: 32px;
+  border-radius: 20px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
   margin-bottom: 24px;
   height: 10vh;
@@ -47,7 +49,7 @@ body {
   align-items: center;
   gap: 24px;
   padding: 0 28px;
-  margin: 2vh 0.5vh;
+  margin: 2vh 2vw;
 }
 
 .greeting {
@@ -101,7 +103,7 @@ body {
   padding: 32px;
   align-items: center;
   height: 82vh;
-  margin: 2.5vh 7vh;
+  margin: 2.5vh 4vw;
   overflow-y: auto;
 }
 
@@ -115,6 +117,9 @@ body {
 .main-panel::-webkit-scrollbar {
   display: none;
 }
+
+/* -------------- Prompt Card CSS --------------- */
+
 .prompt-card {
   background: white;
   border-radius: 18px;
@@ -187,6 +192,48 @@ body {
 
 .submit-icon-btn:hover {
   background: var(--bg-gradient-end);
+}
+
+/* -------------- Postcard CSS --------------- */
+
+.post-card {
+  background-color: var(--post-bg);
+
+  border-radius: 18px;
+  padding: 24px;
+  width: 60%;
+
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
+
+  border: 1px solid rgba(255, 255, 255, 0.06);
+
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  color: #e2e8f0;
+}
+
+.post-title {
+  font-size: 1.35rem;
+  color: #f1f5f9;
+  margin: 0;
+}
+
+.post-author {
+  font-size: 0.9rem;
+  color: #94a3b8;
+  margin: 4px 0 12px;
+}
+
+.post-content {
+  padding: 16px;
+  border-radius: 12px;
+
+  background: rgba(255, 255, 255, 0.04);
+
+  line-height: 1.6;
+  color: #cbd5f5;
 }
 
 /* -------------- Profile Main panel CSS --------------- */
