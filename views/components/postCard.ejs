@@ -1,6 +1,22 @@
 <div class="post-card">
+  <!-- Metadata -->
+  <% const postUser = userInfo.find(user => user.uid === postUid); %>
+
+  <div class="post-meta">
+    <img 
+      class="post-avatar" 
+      src="<%= postUser?.avatar || '/images/default.jpg' %>" 
+      alt="<%= postUser?.name || 'Unknown User' %>"
+    />
+
+    <div class="post-meta-text">
+      <p class="post-author"><%= postUser?.name || "Unknown User" %></p>
+      <p class="post-time"><%= createdAt %></p>
+    </div>
+  </div>
+
   <h2 class="post-title"><%= postTitle %></h2>
-  <p class="post-author">Posted by <%= postAuthor %></p>
+
   <p class="post-content"><%= postText %></p>
 
   <!-- Comment Icon -->

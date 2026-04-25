@@ -245,6 +245,39 @@ body {
   color: #cbd5f5;
 }
 
+/* --------------Post meta CSS --------------- */
+
+.post-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.post-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.post-meta-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.post-author {
+  margin: 0;
+  font-weight: 700;
+  color: var(--post-text);
+}
+
+.post-time {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--post-muted);
+}
 /* -------------- Display current comment part CSS --------------- */
 
 .comment-section {

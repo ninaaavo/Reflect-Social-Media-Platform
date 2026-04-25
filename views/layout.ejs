@@ -80,7 +80,8 @@
               <!-- SHOW POST AFTER UNLOCK -->
               <%- include("components/postCard", {
                 postTitle: prompt.postTitle,
-                postAuthor: prompt.postAuthor,
+                postUid: prompt.postUid,
+                createdAt: prompt.createdAt,
                 postText: prompt.postText,
                 comments: prompt.comments,
                 userPromptAnswer: answers[index] || "",
