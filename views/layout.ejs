@@ -16,6 +16,7 @@
 
 <body>
   <% const user = userInfo.find(u => u.uid === currentUser); %>
+  <%console.log("current user", user) %>
   <div class="page-shell">
     <form action="/reset" method="POST" class="dev-reset-form">
       <button type="submit" class="dev-reset-btn">
@@ -63,9 +64,11 @@
               class="profile-avatar"
             />
 
+            
+
             <div class="profile-info">
               <h1 class="profile-name"><%= user?.name || "Unknown User" %></h1>
-              <p class="profile-pronouns">they/them</p> <!-- temp placeholder -->
+              <p class="profile-pronouns"><%= user?.pronouns || "" %></p>
             </div>
           </div>
 

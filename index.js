@@ -59,16 +59,19 @@ const userInfo = [
   {
     uid: "u1",
     name: "Nina",
+    pronouns: "she/her",
     avatar: "/images/nina.jpg",
   },
   {
     uid: "u2",
     name: "StudentUser23",
+    pronouns: "he/him",
     avatar: "/images/student.jpg",
   },
   {
     uid: "u3",
     name: "Maya",
+    pronouns: "she/her",
     avatar: "/images/maya.jpg",
   },
 ];
