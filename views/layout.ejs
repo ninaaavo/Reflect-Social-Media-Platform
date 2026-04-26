@@ -10,6 +10,7 @@
     window.userInfo = <%- JSON.stringify(userInfo) %>;
   </script>
   <script src="/js/comment.js"></script>
+  <script src="/js/writePost.js"></script>
 
 </head>
 
@@ -74,8 +75,8 @@
       <% } else if (currentPage === 'newsfeed') { %>
         <section class="content-section">
           <% prompts.forEach((prompt, index) => { %>
-
-            <% if (unlockedPosts.includes(index)) { %>
+            <% console.log("the unlocked posts are", unlockedPosts) %>
+            <% if (unlockedPosts.includes(prompt.postId)) { %>
               
               <!-- SHOW POST AFTER UNLOCK -->
               <%- include("components/postCard", {
@@ -84,7 +85,7 @@
                 createdAt: prompt.createdAt,
                 postText: prompt.postText,
                 comments: prompt.comments,
-                userPromptAnswer: answers[index] || "",
+                userPromptAnswer: answers[prompt.postId] || "",
                 userInfo:userInfo
               }) %>
 
@@ -95,7 +96,8 @@
                 question: prompt.question,
                 action: "/answer/" + index,
                 placeholder: prompt.placeholder,
-                buttonText: prompt.buttonText
+                buttonText: prompt.buttonText,
+                postId:prompt.postId
               }) %>
 
             <% } %>
@@ -112,6 +114,50 @@
       +
     </button>
   </div>  
+
+  <div class="write-post-overlay hidden" id="writePostOverlay" onclick="closeWritePost(event)">
+    <div class="write-post-modal" onclick="event.stopPropagation()">
+      <button class="close-write-post" onclick="closeWritePost()">×</button>
+
+      <h2 class="write-post-title">Write a new post</h2>
+
+      <form action="/post" method="POST" class="write-post-form">
+        <label>
+          Prompt question
+          <input
+            name="question"
+            type="text"
+            placeholder="What question should people answer first?"
+            required
+          />
+        </label>
+
+        <label>
+          Post title
+          <input
+            name="postTitle"
+            type="text"
+            placeholder="Give your post a title..."
+            required
+          />
+        </label>
+
+        <label>
+          Your post
+          <textarea
+            name="postText"
+            placeholder="Write what you want to share..."
+            required
+          ></textarea>
+        </label>
+
+        <button type="submit" class="submit-post-btn">
+          Post
+        </button>
+      </form>
+    </div>
+  </div>
+
   <script src="/js/prompt.js" defer></script>
   <template id="comment-template">
     <%- include("components/comment", {

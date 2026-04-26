@@ -1,4 +1,5 @@
 document.addEventListener("submit", async (e) => {
+  console.log("submit button hit")
   if (!e.target.classList.contains("answer-form")) return;
 
   e.preventDefault();

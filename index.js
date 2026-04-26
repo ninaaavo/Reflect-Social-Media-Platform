@@ -5,13 +5,13 @@ app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));
 const PORT = 8080;
 
-const unlockedPosts = [];
-const answers = {}; 
+const unlockedPosts = new Set();
+const answers = {};
 
 const currentUser = "u1";
-
 const prompts = [
   {
+    postId: "p1",
     question: "What do you think about ads on social media?",
     postTitle: "Ads are making social media feel less human",
     postUid: "u1",
@@ -25,6 +25,7 @@ const prompts = [
     action: "/answer",
   },
   {
+    postId: "p2",
     question: "Do you think long lines in public spaces are acceptable?",
     postTitle: "The line at Worcester Commons was ridiculous today",
     postUid: "u2",
@@ -38,6 +39,7 @@ const prompts = [
     action: "/answer",
   },
   {
+    postId: "p3",
     question: "Should apps limit screen time by default?",
     postTitle: "Apps know exactly how to keep us scrolling",
     postUid: "u3",
@@ -51,6 +53,7 @@ const prompts = [
     action: "/answer",
   }
 ];
+let nextPostId = prompts.length + 1;
 
 const userInfo = [
   {
@@ -86,31 +89,35 @@ app.get("/profile", (req, res) => {
 
 // later populate this with db 
 app.get("/", (req, res) => {
-
+  console.log("unlocked post", unlockedPosts);
+  console.log("prompts", prompts);
   res.render("layout", {
     userName: "Nina",
     currentPage: "newsfeed",
     prompts,
-    unlockedPosts,
+    unlockedPosts: Array.from(unlockedPosts),
     answers, 
     userInfo,
     currentUser
   });
 });
 
-app.post("/answer/:id", (req, res) => { 
-  const id = parseInt(req.params.id);
+app.post("/answer/:postId", (req, res) => { 
+  const postId = req.params.postId;
   const answer = req.body.answer;
 
-  if (!unlockedPosts.includes(id)) {
-    unlockedPosts.push(id);
+  const prompt = prompts.find(prompt => prompt.postId === postId);
+
+  if (!prompt) {
+    return res.status(404).send("Post not found");
   }
 
-  answers[id] = answer;
-
-  const prompt = prompts[id]; 
+  unlockedPosts.add(postId);
+  console.log("added stuff to unlocked post", unlockedPosts)
+  answers[postId] = answer;
 
   res.render("components/postCard", {
+    postId: prompt.postId,
     postTitle: prompt.postTitle,
     postAuthor: prompt.postAuthor,
     postText: prompt.postText,
@@ -123,6 +130,24 @@ app.post("/answer/:id", (req, res) => {
   });
 });
 
+app.post("/post", (req, res) => {
+  const { question, postTitle, postText } = req.body;
+
+  const newPost = {
+    postId: "p" + nextPostId++,
+    question,
+    postTitle,
+    postText,
+    postUid: currentUser,
+    createdAt: new Date().toLocaleString(),
+    comments: [],
+    action: "/answer"
+  };
+
+  prompts.unshift(newPost);
+
+  res.redirect("/");
+});
 
 app.post("/reset", (req, res) => {
   unlockedPosts.length = 0;
