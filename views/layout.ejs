@@ -15,6 +15,7 @@
 </head>
 
 <body>
+  <% const user = userInfo.find(u => u.uid === currentUser); %>
   <div class="page-shell">
     <form action="/reset" method="POST" class="dev-reset-form">
       <button type="submit" class="dev-reset-btn">
@@ -24,7 +25,7 @@
     <header class="navbar">
 
         <div class="greeting">
-           ⊹ ࣪ ˖ Hello there, <span class="user-name"><%= userName %></span>
+           ⊹ ࣪ ˖ Hello there, <span class="user-name"><%= user.name %></span>
         </div>
 
         <div class="logo">
@@ -51,31 +52,49 @@
 
     <main class="main-panel">
       <% if (currentPage === 'profile') { %>
-        <section class="content-section">
-          <h1 class="page-title">Your Profile</h1>
+        <section class="profile-section">
 
-          <div class="stats-grid">
-            <div class="stat-card">
-              <p class="stat-label">Prompts Answered</p>
-              <p class="stat-value">24</p>
-            </div>
+          
 
-            <div class="stat-card">
-              <p class="stat-label">Reflections</p>
-              <p class="stat-value">18</p>
-            </div>
+          <div class="profile-header-card">
+            <img
+              src="<%= user?.avatar || '/images/default.jpg' %>"
+              alt="avatar"
+              class="profile-avatar"
+            />
 
-            <div class="stat-card">
-              <p class="stat-label">Opinion Shifts</p>
-              <p class="stat-value">7</p>
+            <div class="profile-info">
+              <h1 class="profile-name"><%= user?.name || "Unknown User" %></h1>
+              <p class="profile-pronouns">they/them</p> <!-- temp placeholder -->
             </div>
           </div>
+
+          <div class="profile-posts">
+            <% const userPosts = prompts.filter(p => p.postUid === currentUser); %>
+
+            <% if (userPosts.length > 0) { %>
+              <% userPosts.forEach(post => { %>
+                <%- include("components/postCard", {
+                  postTitle: post.postTitle,
+                  postUid: post.postUid,
+                  createdAt: post.createdAt,
+                  postText: post.postText,
+                  comments: post.comments,
+                  userPromptAnswer: answers[post.postId] || "",
+                  userInfo: userInfo
+                }) %>
+              <% }) %>
+            <% } else { %>
+              <p class="no-posts">You have not made any posts yet.</p>
+            <% } %>
+          </div>
+
         </section>
 
       <% } else if (currentPage === 'newsfeed') { %>
         <section class="content-section">
-          <% prompts.forEach((prompt, index) => { %>
-            <% console.log("the unlocked posts are", unlockedPosts) %>
+          <% const filteredPrompts = prompts.filter(p => p.postUid !== currentUser); %>
+          <% filteredPrompts.forEach((prompt, index) => { %>
             <% if (unlockedPosts.includes(prompt.postId)) { %>
               
               <!-- SHOW POST AFTER UNLOCK -->

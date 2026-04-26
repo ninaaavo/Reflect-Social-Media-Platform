@@ -79,10 +79,11 @@ app.use(express.json());
 
 app.get("/profile", (req, res) => {
   res.render("layout", {
-    userName: "Nina",
     currentPage: "profile",
     currentUser,
-    userInfo
+    userInfo,
+    answers,
+    prompts
   });
 });
 
@@ -146,7 +147,7 @@ app.post("/post", (req, res) => {
 
   prompts.unshift(newPost);
 
-  res.redirect("/");
+  res.redirect("/profile");
 });
 
 app.post("/reset", (req, res) => {
