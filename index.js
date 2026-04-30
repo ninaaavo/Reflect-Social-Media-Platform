@@ -8,7 +8,7 @@ const PORT = 8080;
 const unlockedPosts = new Set();
 const answers = {};
 
-const currentUser = "u1";
+let currentUser = "u1";
 const prompts = [
   {
     postId: "p1",
@@ -158,6 +158,33 @@ app.post("/reset", (req, res) => {
   res.redirect("/");
 });
 
+app.get("/login", (req, res) => {
+  res.render("login");
+});
+
+app.post("/logout", (req, res) => {
+  currentUser = null;
+  res.redirect("/login");
+});
+
+app.post("/login", (req, res) => {
+  const { username, password } = req.body;
+
+  // password exists from the form, but we are not checking it yet
+  const user = userInfo.find(
+    user => user.name.toLowerCase() === username.toLowerCase()
+  );
+
+  if (!user) {
+    return res.render("login", {
+      error: "User not found"
+    });
+  }
+
+  currentUser = user.uid;
+
+  res.redirect("/");
+});
 app.listen(PORT, () => {
     console.log("running at 8080")
 })

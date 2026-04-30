@@ -1,0 +1,37 @@
+.auth-page {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #0f172a;
+}
+
+.auth-container {
+  background: #1e293b;
+  padding: 40px;
+  border-radius: 16px;
+  width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  text-align: center;
+}
+
+.auth-title {
+  color: white;
+}
+
+.auth-input {
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+}
+
+.auth-btn {
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  background: #4f46e5;
+  color: white;
+  cursor: pointer;
+}

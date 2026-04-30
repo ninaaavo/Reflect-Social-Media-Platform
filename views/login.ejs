@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sign In</title>
+  <link rel="stylesheet" href="/loginStyle.css" />
+</head>
+
+<body class="auth-page">
+  <div class="auth-container">
+    <h1 class="auth-title">Welcome back</h1>
+
+    <form action="/login" method="POST" class="auth-form">
+        <input
+            type="text"
+            name="username"
+            placeholder="Username"
+            required
+            class="auth-input"
+        />
+
+        <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            required
+            class="auth-input"
+        />
+
+        <button type="submit" class="auth-btn">
+            Sign In
+        </button>
+        </form>
+
+        <% if (typeof error !== "undefined") { %>
+        <p class="auth-error"><%= error %></p>
+        <% } %>
+  </div>
+</body>
+</html>

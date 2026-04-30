@@ -98,6 +98,35 @@ body {
   border-bottom: 2px solid;
 }
 
+.logout-form {
+  display: flex;
+  align-items: center;
+  margin: 0;
+}
+
+.logout-btn {
+  background: none;
+  border: none;
+  outline: none;
+
+  font: inherit;
+  color: var(--primary-text);
+  font-size: 1.2rem;
+  font-weight: 350;
+
+  padding-bottom: 6px;
+  border-bottom: 2px solid transparent;
+
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.logout-btn:hover {
+  color: var(--light-text);
+  border-bottom: 1px solid var(--light-text);
+}
+
+
 /* -------------- Newsfeed Main panel CSS --------------- */
 
 .main-panel {
