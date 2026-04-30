@@ -123,6 +123,38 @@ app.get("/profile", async (req, res) => {
   });
 });
 
+app.get("/posts/:postId/comments", async (req, res) => {
+  const { postId } = req.params;
+
+  const usersSnapshot = await db.collection("users").get();
+
+  const userInfo = usersSnapshot.docs.map((doc) => ({
+    uid: doc.id,
+    ...doc.data(),
+  }));
+  const commentsSnapshot = await db
+    .collection("posts")
+    .doc(postId)
+    .collection("comments")
+    .orderBy("createdAt", "asc")
+    .get();
+
+  const comments = commentsSnapshot.docs.map((doc) => {
+    const data = doc.data();
+
+    return {
+      commentId: doc.id,
+      ...data,
+      createdAt: data.createdAt ? data.createdAt.toDate().toLocaleString() : "",
+    };
+  });
+
+  res.render("components/commentsList", {
+    comments,
+    userInfo,
+  });
+});
+
 // app.get("/seed", async (req, res) => {
 //   try {
 //     const batch = db.batch();
@@ -409,6 +441,8 @@ app.post("/reset", async (req, res) => {
 });
 
 app.post("/comment/:postId", async (req, res) => {
+  console.log("im posting comment");
+
   try {
     const { postId } = req.params;
     const { uid, text } = req.body;
@@ -417,19 +451,25 @@ app.post("/comment/:postId", async (req, res) => {
       return res.status(400).json({ error: "Missing uid or text" });
     }
 
-    const comment = {
+    const commentData = {
       uid,
       text,
-      createdAt: new Date().toLocaleString(),
+      createdAt: new Date(), // store as Date (Firestore Timestamp)
     };
 
-    const postRef = db.collection("posts").doc(postId);
+    const commentRef = await db
+      .collection("posts")
+      .doc(postId)
+      .collection("comments")
+      .add(commentData);
 
-    await postRef.update({
-      comments: admin.firestore.FieldValue.arrayUnion(comment),
+    // return formatted version for UI
+    res.json({
+      commentId: commentRef.id,
+      ...commentData,
+      createdAt: commentData.createdAt.toLocaleString(),
     });
 
-    res.json(comment);
   } catch (err) {
     console.error("Error saving comment:", err);
     res.status(500).json({ error: "Failed to save comment" });

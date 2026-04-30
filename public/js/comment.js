@@ -1,11 +1,23 @@
-function toggleComments(button) {
-  console.log("toggle comment called");
+async function toggleComments(button) {
+  const postCard = button.closest(".post-card");
+  const commentSection = postCard.querySelector(".comment-section");
+  const commentsList = postCard.querySelector(".comments-list");
+  const postId = postCard.dataset.postId;
 
-  const card = button.closest(".post-card");
-  const section = card.querySelector(".comment-section");
+  commentSection.classList.toggle("hidden");
 
-  section.classList.toggle("hidden");
-  button.classList.toggle("active");
+  if (
+    !commentSection.classList.contains("hidden") &&
+    commentsList.dataset.loaded === "false"
+  ) {
+    commentsList.innerHTML = `<p class="no-comments">Loading comments...</p>`;
+
+    const res = await fetch(`/posts/${postId}/comments`);
+    const html = await res.text();
+
+    commentsList.innerHTML = html;
+    commentsList.dataset.loaded = "true";
+  }
 }
 
 function autoResize(el) {
