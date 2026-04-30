@@ -5,209 +5,61 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Reflect</title>
   <link rel="stylesheet" href="/styles.css" />
+
   <script>
-    window.currentUser = "<%= currentUser %>";
-    window.userInfo = <%- JSON.stringify(userInfo) %>;
+    window.currentUser = "<%= currentUser || '' %>";
+    window.userInfo = <%- JSON.stringify(userInfo || []) %>;
   </script>
+
   <script src="/js/comment.js"></script>
   <script src="/js/writePost.js"></script>
-
 </head>
 
 <body>
-  <% const user = userInfo.find(u => u.uid === currentUser); %>
-  <%console.log("current user", user) %>
+  <% const user = (userInfo || []).find(u => u.uid === currentUser); %>
   <div class="page-shell">
     <form action="/reset" method="POST" class="dev-reset-form">
       <button type="submit" class="dev-reset-btn">
         🔄 Reset Feed (Dev)
       </button>
     </form>
+
     <header class="navbar">
+      <div class="greeting">
+        ⊹ ࣪ ˖ Hello there,
+        <span class="user-name"><%= user?.name || "User" %></span>
+      </div>
 
-        <div class="greeting">
-           ⊹ ࣪ ˖ Hello there, <span class="user-name"><%= user.name %></span>
-        </div>
+      <div class="logo">REFLECT</div>
 
-        <div class="logo">
-          REFLECT
-        </div>
+      <nav class="nav-links">
+        <a href="/profile" class="nav-link <%= currentPage === 'profile' ? 'active' : '' %>">
+          Your Profile
+        </a>
 
-        <nav class="nav-links">
-          <a
-            href="/profile"
-            class="nav-link <%= currentPage === 'profile' ? 'active' : '' %>"
-          >
-            Your Profile
-          </a>
+        <a href="/" class="nav-link <%= currentPage === 'newsfeed' ? 'active' : '' %>">
+          Newsfeed
+        </a>
 
-          <a
-            href="/"
-            class="nav-link <%= currentPage === 'newsfeed' ? 'active' : '' %>"
-          >
-            Newsfeed
-          </a>
-        <!-- Logout -->
         <form action="/logout" method="POST" class="logout-form">
           <button type="submit" class="nav-link logout-btn">
             Logout
           </button>
         </form>
-          
-        </nav>
-
+      </nav>
     </header>
 
     <main class="main-panel">
-      <% if (currentPage === 'profile') { %>
-        <section class="profile-section">
-
-          
-
-          <div class="profile-header-card">
-            <img
-              src="<%= user?.avatar || 'https://firebasestorage.googleapis.com/v0/b/reflect-cb8fd.firebasestorage.app/o/avatars%2Fdefault.jpg?alt=media&token=2db9e997-9a1a-4a4f-9add-39031ae1a727' %>"
-              alt="avatar"
-              class="profile-avatar"
-            />            
-
-            <div class="profile-info">
-              <h1 class="profile-name"><%= user?.name || "Unknown User" %></h1>
-              <p class="profile-pronouns"><%= user?.pronouns || "" %></p>
-            </div>
-          </div>
-
-          <div class="profile-posts">
-            <% const userPosts = prompts.filter(p => p.postUid === currentUser); %>
-
-            <% if (userPosts.length > 0) { %>
-              <% userPosts.forEach(post => { %>
-                <%- include("components/postCard", {
-                  postTitle: post.postTitle,
-                  postUid: post.postUid,
-                  createdAt: post.createdAt,
-                  postText: post.postText,
-                  comments: post.comments,
-                  userPromptAnswer: answers[post.postId] || "",
-                  userInfo: userInfo,
-                  postId:post.postId,
-                  imageUrl: post.imageUrl
-                }) %>
-              <% }) %>
-            <% } else { %>
-              <p class="no-posts">You have not made any posts yet.</p>
-            <% } %>
-          </div>
-
-        </section>
-
-      <% } else if (currentPage === 'newsfeed') { %>
-        <section class="content-section">
-          <% const filteredPrompts = prompts.filter(p => p.postUid !== currentUser); %>
-          <% filteredPrompts.forEach((prompt, index) => { %>
-            <% if (unlockedPosts.includes(prompt.postId)) { %>
-              
-              <!-- SHOW POST AFTER UNLOCK -->
-              <%- include("components/postCard", {
-                postTitle: prompt.postTitle,
-                postUid: prompt.postUid,
-                createdAt: prompt.createdAt,
-                postText: prompt.postText,
-                comments: prompt.comments,
-                userPromptAnswer: answers[prompt.postId] || "",
-                userInfo:userInfo,
-                postId: prompt.postId,
-                imageUrl: prompt.imageUrl,
-
-              }) %>
-              <%console.log("comments", prompt.comments)%>
-            <% } else { %>
-
-              <!-- SHOW PROMPT FIRST -->
-              <%- include("components/promptCard", {
-                question: prompt.question,
-                action: "/answer/" + index,
-                placeholder: prompt.placeholder,
-                buttonText: prompt.buttonText,
-                postId:prompt.postId
-              }) %>
-
-            <% } %>
-
-          <% }) %>
-        </section>
-      <% } %>
-
-      
+      <%- body %>
     </main>
 
-    <!-- Write Post Button -->
-    <button class="write-post-btn" onclick="openWritePost()">
-      +
-    </button>
-  </div>  
-
-  <div class="write-post-overlay hidden" id="writePostOverlay" onclick="closeWritePost(event)">
-    <div class="write-post-modal" onclick="event.stopPropagation()">
-      <button class="close-write-post" onclick="closeWritePost()">×</button>
-
-      <h2 class="write-post-title">Write a new post</h2>
-
-      <form action="/post" method="POST" enctype="multipart/form-data" class="write-post-form">
-        
-        <label>
-          Prompt question
-          <input
-            name="question"
-            type="text"
-            placeholder="What question should people answer first?"
-            required
-          />
-        </label>
-
-        <label>
-          Post title
-          <input
-            name="postTitle"
-            type="text"
-            placeholder="Give your post a title..."
-            required
-          />
-        </label>
-
-        <label>
-          Your post
-          <textarea
-            name="postText"
-            placeholder="Write what you want to share..."
-            required
-          ></textarea>
-        </label>
-
-        <!-- 🖼 Image Upload -->
-        <label class="image-upload-label">
-          Add image (optional)
-          <input
-            type="file"
-            name="image"
-            accept="image/*"
-            onchange="previewImage(event)"
-          />
-        </label>
-
-        <!-- Preview -->
-        <div class="image-preview-container">
-          <img id="imagePreview" class="image-preview hidden" />
-        </div>
-
-        <button type="submit" class="submit-post-btn">
-          Post
-        </button>
-      </form>
-    </div>
+    <button class="write-post-btn" onclick="openWritePost()">+</button>
   </div>
 
+  <%- include("components/writePostModal") %>
+
   <script src="/js/prompt.js" defer></script>
+
   <template id="comment-template">
     <%- include("components/comment", {
       comment: { text: "", createdAt: "" },

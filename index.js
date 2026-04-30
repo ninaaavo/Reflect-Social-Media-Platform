@@ -16,7 +16,10 @@ const app = express();
 const session = require("express-session");
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
+const expressLayouts = require("express-ejs-layouts");
 
+app.use(expressLayouts);
+app.set("layout", "layout");
 app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));
 app.use(
@@ -24,11 +27,17 @@ app.use(
     secret: process.env.SESSION_SECRET || "dev-secret",
     resave: false,
     saveUninitialized: false,
-  })
+  }),
 );
 
 app.use(passport.initialize());
 app.use(passport.session());
+app.use((req, res, next) => {
+  res.locals.currentUser = req.user?.uid || null;
+  res.locals.userInfo = [];
+  res.locals.currentPage = "";
+  next();
+});
 
 app.set("view engine", "ejs");
 app.use(express.static("public"));
@@ -36,7 +45,6 @@ app.use(express.json());
 
 const PORT = 8080;
 
-const unlockedPosts = new Set();
 
 // ------------ Set up Oauth -------------
 
@@ -74,8 +82,8 @@ passport.use(
       } catch (err) {
         return done(err, null);
       }
-    }
-  )
+    },
+  ),
 );
 
 passport.serializeUser((user, done) => {
@@ -111,6 +119,7 @@ function requireAuth(req, res, next) {
 
 app.get("/signin", (req, res) => {
   res.render("login", {
+    layout: false,
     error: null,
   });
 });
@@ -119,7 +128,7 @@ app.get(
   "/auth/google",
   passport.authenticate("google", {
     scope: ["profile", "email"],
-  })
+  }),
 );
 
 app.get(
@@ -129,7 +138,7 @@ app.get(
   }),
   (req, res) => {
     res.redirect("/profile");
-  }
+  },
 );
 
 app.post("/logout", (req, res) => {
@@ -139,14 +148,20 @@ app.post("/logout", (req, res) => {
 });
 
 app.get("/signup", (req, res) => {
-  res.render("signup", { error: null });
+  res.render("signup", {
+    layout: false,
+    error: null,
+  });
 });
 
 app.post("/signup", async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return res.render("signup", { error: "Missing fields" });
+    return res.render("signup", {
+      layout: false,
+      error: "Missing fields",
+    });
   }
 
   try {
@@ -157,7 +172,10 @@ app.post("/signup", async (req, res) => {
       .get();
 
     if (!snapshot.empty) {
-      return res.render("signup", { error: "User already exists" });
+      return res.render("signup", {
+        layout: false,
+        error: "User already exists",
+      });
     }
 
     // create user
@@ -175,7 +193,10 @@ app.post("/signup", async (req, res) => {
     res.redirect("/profile");
   } catch (err) {
     console.error(err);
-    res.render("signup", { error: "Signup failed" });
+    res.render("signup", {
+      layout: false,
+      error: "Signup failed",
+    });
   }
 });
 
@@ -186,8 +207,6 @@ app.use((req, res, next) => {
 
   return res.redirect("/signin");
 });
-
-
 
 // ---------- Upload Route ------------ //
 
@@ -258,8 +277,8 @@ app.get("/profile", async (req, res) => {
     };
   });
 
-  console.log("The prompts are", prompts)
-  res.render("layout", {
+  console.log("The prompts are", prompts);
+  res.render("profile", {
     currentPage: "profile",
     currentUser,
     userInfo,
@@ -469,7 +488,7 @@ app.get("/", async (req, res) => {
       return bTime - aTime;
     });
 
-    res.render("layout", {
+    res.render("newsfeed", {
       userName: userInfo.find((u) => u.uid === currentUser)?.name || "User",
       currentPage: "newsfeed",
       prompts,
@@ -497,25 +516,20 @@ app.post("/answer/:postId", async (req, res) => {
       return res.status(404).send("Post not found");
     }
 
-    await postRef
-      .collection("answers")
-      .doc(currentUser)
-      .set({
-        uid: currentUser,
-        answer,
-        createdAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
+    await postRef.collection("answers").doc(currentUser).set({
+      uid: currentUser,
+      answer,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
 
     const post = {
       postId: postDoc.id,
       ...postDoc.data(),
     };
 
-    const commentsSnapshot = await postRef
-      .collection("comments")
-      .get();
+    const commentsSnapshot = await postRef.collection("comments").get();
 
-    const comments = commentsSnapshot.docs.map(doc => ({
+    const comments = commentsSnapshot.docs.map((doc) => ({
       commentId: doc.id,
       ...doc.data(),
       createdAt: doc.data().createdAt?.toDate?.().toLocaleString() || "",
@@ -527,7 +541,7 @@ app.post("/answer/:postId", async (req, res) => {
       uid: doc.id,
       ...doc.data(),
     }));
-    
+
     res.render("components/postCard", {
       postId: post.postId,
       postTitle: post.postTitle,
@@ -539,7 +553,7 @@ app.post("/answer/:postId", async (req, res) => {
       userPromptAnswer: answer,
       userInfo,
       currentUser,
-      imageUrl: post.imageUrl
+      imageUrl: post.imageUrl,
     });
   } catch (err) {
     console.error(err);
@@ -597,7 +611,7 @@ app.post("/reset", async (req, res) => {
 
       const batch = db.batch();
 
-      answersSnapshot.docs.forEach(doc => {
+      answersSnapshot.docs.forEach((doc) => {
         batch.delete(doc.ref);
       });
 
@@ -641,7 +655,6 @@ app.post("/comment/:postId", async (req, res) => {
       ...commentData,
       createdAt: commentData.createdAt.toLocaleString(),
     });
-
   } catch (err) {
     console.error("Error saving comment:", err);
     res.status(500).json({ error: "Failed to save comment" });

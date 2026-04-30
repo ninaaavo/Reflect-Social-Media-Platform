@@ -1,0 +1,56 @@
+<div class="write-post-overlay hidden" id="writePostOverlay" onclick="closeWritePost(event)">
+  <div class="write-post-modal" onclick="event.stopPropagation()">
+    <button class="close-write-post" onclick="closeWritePost()">×</button>
+
+    <h2 class="write-post-title">Write a new post</h2>
+
+    <form action="/post" method="POST" enctype="multipart/form-data" class="write-post-form">
+      <label>
+        Prompt question
+        <input
+          name="question"
+          type="text"
+          placeholder="What question should people answer first?"
+          required
+        />
+      </label>
+
+      <label>
+        Post title
+        <input
+          name="postTitle"
+          type="text"
+          placeholder="Give your post a title..."
+          required
+        />
+      </label>
+
+      <label>
+        Your post
+        <textarea
+          name="postText"
+          placeholder="Write what you want to share..."
+          required
+        ></textarea>
+      </label>
+
+      <label class="image-upload-label">
+        Add image optional
+        <input
+          type="file"
+          name="image"
+          accept="image/*"
+          onchange="previewImage(event)"
+        />
+      </label>
+
+      <div class="image-preview-container">
+        <img id="imagePreview" class="image-preview hidden" />
+      </div>
+
+      <button type="submit" class="submit-post-btn">
+        Post
+      </button>
+    </form>
+  </div>
+</div>

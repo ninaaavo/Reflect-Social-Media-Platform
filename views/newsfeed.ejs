@@ -1,0 +1,31 @@
+<section class="content-section">
+  <% const filteredPrompts = prompts.filter(p => p.postUid !== currentUser); %>
+
+  <% filteredPrompts.forEach(prompt => { %>
+    <% if (unlockedPosts.includes(prompt.postId)) { %>
+
+      <%- include("components/postCard", {
+        postTitle: prompt.postTitle,
+        postUid: prompt.postUid,
+        createdAt: prompt.createdAt,
+        postText: prompt.postText,
+        comments: prompt.comments,
+        userPromptAnswer: answers[prompt.postId] || "",
+        userInfo,
+        postId: prompt.postId,
+        imageUrl: prompt.imageUrl
+      }) %>
+
+    <% } else { %>
+
+      <%- include("components/promptCard", {
+        question: prompt.question,
+        action: "/answer/" + prompt.postId,
+        placeholder: prompt.placeholder,
+        buttonText: prompt.buttonText,
+        postId: prompt.postId
+      }) %>
+
+    <% } %>
+  <% }) %>
+</section>

@@ -1,0 +1,38 @@
+<section class="profile-section">
+  <% const user = userInfo.find(u => u.uid === currentUser); %>
+
+  <div class="profile-header-card">
+    <img
+      src="<%= user?.avatar || 'https://firebasestorage.googleapis.com/v0/b/reflect-cb8fd.firebasestorage.app/o/avatars%2Fdefault.jpg?alt=media&token=2db9e997-9a1a-4a4f-9add-39031ae1a727' %>"
+      alt="avatar"
+      class="profile-avatar"
+    />
+
+    <div class="profile-info">
+      <h1 class="profile-name"><%= user?.name || "Unknown User" %></h1>
+      <p class="profile-pronouns"><%= user?.pronouns || "" %></p>
+    </div>
+  </div>
+
+  <div class="profile-posts">
+    <% const userPosts = prompts.filter(p => p.postUid === currentUser); %>
+
+    <% if (userPosts.length > 0) { %>
+      <% userPosts.forEach(post => { %>
+        <%- include("components/postCard", {
+          postTitle: post.postTitle,
+          postUid: post.postUid,
+          createdAt: post.createdAt,
+          postText: post.postText,
+          comments: post.comments,
+          userPromptAnswer: answers[post.postId] || "",
+          userInfo,
+          postId: post.postId,
+          imageUrl: post.imageUrl
+        }) %>
+      <% }) %>
+    <% } else { %>
+      <p class="no-posts">You have not made any posts yet.</p>
+    <% } %>
+  </div>
+</section>
