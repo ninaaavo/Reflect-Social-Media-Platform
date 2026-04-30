@@ -17,6 +17,8 @@ const session = require("express-session");
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const expressLayouts = require("express-ejs-layouts");
+const LocalStrategy = require("passport-local").Strategy;
+const bcrypt = require("bcrypt");
 
 app.use(expressLayouts);
 app.set("layout", "layout");
@@ -86,6 +88,51 @@ passport.use(
   ),
 );
 
+
+passport.use(
+  new LocalStrategy(
+    {
+      usernameField: "email",
+      passwordField: "password",
+    },
+    async (email, password, done) => {
+      try {
+        const snapshot = await db
+          .collection("users")
+          .where("email", "==", email)
+          .limit(1)
+          .get();
+
+        if (snapshot.empty) {
+          return done(null, false, { message: "No user found" });
+        }
+
+        const userDoc = snapshot.docs[0];
+        const user = {
+          uid: userDoc.id,
+          ...userDoc.data(),
+        };
+
+        if (!user.password) {
+          return done(null, false, {
+            message: "This account uses Google sign in",
+          });
+        }
+
+        const isMatch = await bcrypt.compare(password, user.password);
+
+        if (!isMatch) {
+          return done(null, false, { message: "Wrong password" });
+        }
+
+        return done(null, user);
+      } catch (err) {
+        return done(err);
+      }
+    },
+  ),
+);
+
 passport.serializeUser((user, done) => {
   done(null, user.uid);
 });
@@ -124,6 +171,24 @@ app.get("/signin", (req, res) => {
   });
 });
 
+app.post("/login", (req, res, next) => {
+  passport.authenticate("local", (err, user, info) => {
+    if (err) return next(err);
+
+    if (!user) {
+      return res.render("login", {
+        layout: false,
+        error: info?.message || "Login failed",
+      });
+    }
+
+    req.login(user, (err) => {
+      if (err) return next(err);
+      return res.redirect("/profile");
+    });
+  })(req, res, next);
+});
+
 app.get(
   "/auth/google",
   passport.authenticate("google", {
@@ -154,21 +219,21 @@ app.get("/signup", (req, res) => {
   });
 });
 
-app.post("/signup", async (req, res) => {
-  const { email, password } = req.body;
+app.post("/signup", async (req, res, next) => {
+  const { email, password, name } = req.body;
 
-  if (!email || !password) {
+  if (!email || !password || !name) {
     return res.render("signup", {
       layout: false,
-      error: "Missing fields",
+      error: "All fields required",
     });
   }
 
   try {
-    // check if user exists
     const snapshot = await db
       .collection("users")
       .where("email", "==", email)
+      .limit(1)
       .get();
 
     if (!snapshot.empty) {
@@ -178,19 +243,29 @@ app.post("/signup", async (req, res) => {
       });
     }
 
-    // create user
-    const newUser = {
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const userData = {
       email,
-      password, // ⚠️ plain text for now (fix later)
-      createdAt: new Date(),
+      password: hashedPassword,
+      name, // ✅ now guaranteed
+      avatar: "/images/default.jpg",
+      pronouns: "",
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
     };
 
-    const docRef = await db.collection("users").add(newUser);
+    const docRef = await db.collection("users").add(userData);
 
-    // simple session (adjust based on your auth system)
-    req.session.userId = docRef.id;
-
-    res.redirect("/profile");
+    req.login(
+      {
+        uid: docRef.id,
+        ...userData,
+      },
+      (err) => {
+        if (err) return next(err);
+        return res.redirect("/profile");
+      },
+    );
   } catch (err) {
     console.error(err);
     res.render("signup", {
@@ -199,7 +274,6 @@ app.post("/signup", async (req, res) => {
     });
   }
 });
-
 app.use((req, res, next) => {
   if (req.isAuthenticated && req.isAuthenticated()) {
     return next();
@@ -555,6 +629,7 @@ app.post("/answer/:postId", async (req, res) => {
       userInfo,
       currentUser,
       imageUrl: post.imageUrl,
+      layout: false,
     });
   } catch (err) {
     console.error(err);
