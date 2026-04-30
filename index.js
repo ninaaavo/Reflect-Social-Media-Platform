@@ -8,7 +8,7 @@ admin.initializeApp({
 
 const db = admin.firestore();
 
-const express = require('express');
+const express = require("express");
 
 const app = express();
 app.use(express.static("public"));
@@ -16,127 +16,306 @@ app.use(express.urlencoded({ extended: true }));
 const PORT = 8080;
 
 const unlockedPosts = new Set();
-const answers = {};
+// const answers = {};
 
 let currentUser = "u1";
-const prompts = [
-  {
-    postId: "p1",
-    question: "What do you think about ads on social media?",
-    postTitle: "Ads are making social media feel less human",
-    postUid: "u1",
-    createdAt: "2026-04-25 4:30 PM",
-    postText: "I feel like every platform slowly turns into an ad machine. At first it feels like a place to connect, then suddenly every few posts are sponsored, recommended, or trying to sell me something.",
-    comments: [
-      { uid: "u1", text: "Yeah, it feels like the actual people are buried under sponsored posts.", createdAt: "2026-04-25 4:35 PM" },
-      { uid: "u2", text: "I honestly stopped noticing ads because there are so many now.", createdAt: "2026-04-25 4:37 PM" },
-      { uid: "u3", text: "The worst is when the ad looks like a normal post.", createdAt: "2026-04-25 4:40 PM" }
-    ],
-    action: "/answer",
-  },
-  {
-    postId: "p2",
-    question: "Do you think long lines in public spaces are acceptable?",
-    postTitle: "The line at Worcester Commons was ridiculous today",
-    postUid: "u2",
-    createdAt: "2026-04-25 3:15 PM",
-    postText: "I waited so long just to get food that I almost gave up. I get that places get busy, but at some point it feels like the system just is not built for the amount of people using it.",
-    comments: [
-      { uid: "u1", text: "Worcester gets so packed during lunch, it is actually wild.", createdAt: "2026-04-25 3:20 PM" },
-      { uid: "u2", text: "I feel like they need better traffic flow or more stations open.", createdAt: "2026-04-25 3:22 PM" },
-      { uid: "u3", text: "Sometimes the line looks worse than it actually is, but today was bad.", createdAt: "2026-04-25 3:25 PM" }
-    ],
-    action: "/answer",
-  },
-  {
-    postId: "p3",
-    question: "Should apps limit screen time by default?",
-    postTitle: "Apps know exactly how to keep us scrolling",
-    postUid: "u3",
-    createdAt: "2026-04-25 1:05 PM",
-    postText: "I think apps should have stronger default screen time limits. Most people do not open an app planning to lose an hour, but the design makes it really easy to keep going.",
-    comments: [
-      { uid: "u1", text: "Default limits would help because most people never change settings.", createdAt: "2026-04-25 1:10 PM" },
-      { uid: "u2", text: "I agree, but I also feel like people should still be able to override it.", createdAt: "2026-04-25 1:12 PM" },
-      { uid: "u3", text: "Infinite scroll is the real villain here.", createdAt: "2026-04-25 1:14 PM" }
-    ],
-    action: "/answer",
-  }
-];
-let nextPostId = prompts.length + 1;
+// const prompts = [
+//   {
+//     postId: "p1",
+//     question: "What do you think about ads on social media?",
+//     postTitle: "Ads are making social media feel less human",
+//     postUid: "u1",
+//     createdAt: "2026-04-25 4:30 PM",
+//     postText: "I feel like every platform slowly turns into an ad machine. At first it feels like a place to connect, then suddenly every few posts are sponsored, recommended, or trying to sell me something.",
+//     comments: [
+//       { uid: "u1", text: "Yeah, it feels like the actual people are buried under sponsored posts.", createdAt: "2026-04-25 4:35 PM" },
+//       { uid: "u2", text: "I honestly stopped noticing ads because there are so many now.", createdAt: "2026-04-25 4:37 PM" },
+//       { uid: "u3", text: "The worst is when the ad looks like a normal post.", createdAt: "2026-04-25 4:40 PM" }
+//     ],
+//     action: "/answer",
+//   },
+//   {
+//     postId: "p2",
+//     question: "Do you think long lines in public spaces are acceptable?",
+//     postTitle: "The line at Worcester Commons was ridiculous today",
+//     postUid: "u2",
+//     createdAt: "2026-04-25 3:15 PM",
+//     postText: "I waited so long just to get food that I almost gave up. I get that places get busy, but at some point it feels like the system just is not built for the amount of people using it.",
+//     comments: [
+//       { uid: "u1", text: "Worcester gets so packed during lunch, it is actually wild.", createdAt: "2026-04-25 3:20 PM" },
+//       { uid: "u2", text: "I feel like they need better traffic flow or more stations open.", createdAt: "2026-04-25 3:22 PM" },
+//       { uid: "u3", text: "Sometimes the line looks worse than it actually is, but today was bad.", createdAt: "2026-04-25 3:25 PM" }
+//     ],
+//     action: "/answer",
+//   },
+//   {
+//     postId: "p3",
+//     question: "Should apps limit screen time by default?",
+//     postTitle: "Apps know exactly how to keep us scrolling",
+//     postUid: "u3",
+//     createdAt: "2026-04-25 1:05 PM",
+//     postText: "I think apps should have stronger default screen time limits. Most people do not open an app planning to lose an hour, but the design makes it really easy to keep going.",
+//     comments: [
+//       { uid: "u1", text: "Default limits would help because most people never change settings.", createdAt: "2026-04-25 1:10 PM" },
+//       { uid: "u2", text: "I agree, but I also feel like people should still be able to override it.", createdAt: "2026-04-25 1:12 PM" },
+//       { uid: "u3", text: "Infinite scroll is the real villain here.", createdAt: "2026-04-25 1:14 PM" }
+//     ],
+//     action: "/answer",
+//   }
+// ];
+// let nextPostId = prompts.length + 1;
 
-const userInfo = [
-  {
-    uid: "u1",
-    name: "Nina",
-    pronouns: "she/her",
-    avatar: "/images/nina.jpg",
-  },
-  {
-    uid: "u2",
-    name: "StudentUser23",
-    pronouns: "he/him",
-    avatar: "/images/student.jpg",
-  },
-  {
-    uid: "u3",
-    name: "Maya",
-    pronouns: "she/her",
-    avatar: "/images/maya.jpg",
-  },
-];
+// const userInfo = [
+//   {
+//     uid: "u1",
+//     name: "Nina",
+//     pronouns: "she/her",
+//     avatar: "/images/nina.jpg",
+//   },
+//   {
+//     uid: "u2",
+//     name: "StudentUser23",
+//     pronouns: "he/him",
+//     avatar: "/images/student.jpg",
+//   },
+//   {
+//     uid: "u3",
+//     name: "Maya",
+//     pronouns: "she/her",
+//     avatar: "/images/maya.jpg",
+//   },
+// ];
 
 app.set("view engine", "ejs");
 app.use(express.static("public"));
 app.use(express.json());
 
-app.get("/profile", (req, res) => {
+app.get("/profile", async (req, res) => {
+  const usersSnapshot = await db.collection("users").get();
+  const postsSnapshot = await db
+    .collection("posts")
+    .where("postUid", "==", currentUser)
+    .orderBy("createdAt", "desc")
+    .get();
+
+  const userInfo = usersSnapshot.docs.map((doc) => ({
+    uid: doc.id,
+    ...doc.data(),
+  }));
+
+  const prompts = postsSnapshot.docs.map((doc) => {
+    const data = doc.data();
+
+    return {
+      postId: doc.id,
+      ...data,
+      createdAt: data.createdAt ? data.createdAt.toDate().toLocaleString() : "",
+    };
+  });
+
   res.render("layout", {
     currentPage: "profile",
     currentUser,
     userInfo,
-    answers,
-    prompts
-  });
-});
-
-
-app.get("/test-db", async (req, res) => {
-  await db.collection("test").doc("hello").set({
-    message: "it works",
-    time: new Date(),
-  });
-
-  res.send("wrote to firestore");
-});
-
-// later populate this with db 
-app.get("/", (req, res) => {
-  console.log("unlocked post", unlockedPosts);
-  console.log("prompts", prompts);
-  res.render("layout", {
-    userName: "Nina",
-    currentPage: "newsfeed",
     prompts,
-    unlockedPosts: Array.from(unlockedPosts),
-    answers, 
-    userInfo,
-    currentUser
+    answers: {},
   });
 });
 
-app.post("/answer/:postId", (req, res) => { 
+// app.get("/seed", async (req, res) => {
+//   try {
+//     const batch = db.batch();
+
+//     // ===== USERS =====
+//     const userInfo = [
+//       {
+//         uid: "u1",
+//         name: "Nina",
+//         pronouns: "she/her",
+//         avatar: "/images/nina.jpg",
+//       },
+//       {
+//         uid: "u2",
+//         name: "StudentUser23",
+//         pronouns: "he/him",
+//         avatar: "/images/student.jpg",
+//       },
+//       {
+//         uid: "u3",
+//         name: "Maya",
+//         pronouns: "she/her",
+//         avatar: "/images/maya.jpg",
+//       },
+//     ];
+
+//     userInfo.forEach(user => {
+//       const ref = db.collection("users").doc(user.uid);
+//       batch.set(ref, {
+//         name: user.name,
+//         pronouns: user.pronouns,
+//         avatar: user.avatar,
+//         createdAt: admin.firestore.FieldValue.serverTimestamp(),
+//       });
+//     });
+
+//     // ===== POSTS =====
+//     const prompts = [
+//       {
+//         postId: "p1",
+//         question: "What do you think about ads on social media?",
+//         postTitle: "Ads are making social media feel less human",
+//         postUid: "u1",
+//         postText: "I feel like every platform slowly turns into an ad machine...",
+//         comments: [
+//           { uid: "u1", text: "Yeah, it feels like the actual people are buried under sponsored posts." },
+//           { uid: "u2", text: "I honestly stopped noticing ads because there are so many now." },
+//           { uid: "u3", text: "The worst is when the ad looks like a normal post." }
+//         ],
+//       },
+//       {
+//         postId: "p2",
+//         question: "Do you think long lines in public spaces are acceptable?",
+//         postTitle: "The line at Worcester Commons was ridiculous today",
+//         postUid: "u2",
+//         postText: "I waited so long just to get food that I almost gave up...",
+//         comments: [
+//           { uid: "u1", text: "Worcester gets so packed during lunch, it is actually wild." },
+//           { uid: "u2", text: "I feel like they need better traffic flow or more stations open." },
+//           { uid: "u3", text: "Sometimes the line looks worse than it actually is, but today was bad." }
+//         ],
+//       },
+//       {
+//         postId: "p3",
+//         question: "Should apps limit screen time by default?",
+//         postTitle: "Apps know exactly how to keep us scrolling",
+//         postUid: "u3",
+//         postText: "I think apps should have stronger default screen time limits...",
+//         comments: [
+//           { uid: "u1", text: "Default limits would help because most people never change settings." },
+//           { uid: "u2", text: "I agree, but I also feel like people should still be able to override it." },
+//           { uid: "u3", text: "Infinite scroll is the real villain here." }
+//         ],
+//       }
+//     ];
+
+//     // Create posts
+//     for (const post of prompts) {
+//       const postRef = db.collection("posts").doc(post.postId);
+
+//       batch.set(postRef, {
+//         question: post.question,
+//         postTitle: post.postTitle,
+//         postUid: post.postUid,
+//         postText: post.postText,
+//         createdAt: admin.firestore.FieldValue.serverTimestamp(),
+//       });
+
+//       // comments subcollection
+//       post.comments.forEach((comment, index) => {
+//         const commentRef = postRef
+//           .collection("comments")
+//           .doc(`c${index + 1}`);
+
+//         batch.set(commentRef, {
+//           uid: comment.uid,
+//           text: comment.text,
+//           createdAt: admin.firestore.FieldValue.serverTimestamp(),
+//         });
+//       });
+//     }
+
+//     await batch.commit();
+
+//     res.send("Database seeded successfully 🚀");
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).send("Error seeding database");
+//   }
+// });
+
+// later populate this with db
+
+app.get("/", async (req, res) => {
+  try {
+    // ===== fetch users =====
+    const usersSnapshot = await db.collection("users").get();
+    const userInfo = usersSnapshot.docs.map((doc) => ({
+      uid: doc.id,
+      ...doc.data(),
+    }));
+
+    // ===== fetch posts =====
+    const postsSnapshot = await db.collection("posts").get();
+
+    const prompts = [];
+    const unlockedPosts = [];
+    const answers = {};
+
+    for (const doc of postsSnapshot.docs) {
+      const postId = doc.id;
+      const postData = doc.data();
+
+      const createdAtRaw = postData.createdAt;
+
+      // check if current user answered
+      const answerDoc = await db
+        .collection("posts")
+        .doc(postId)
+        .collection("answers")
+        .doc(currentUser)
+        .get();
+
+      if (answerDoc.exists) {
+        unlockedPosts.push(postId);
+        answers[postId] = answerDoc.data().answer;
+      }
+
+      prompts.push({
+        postId,
+        ...postData,
+
+        // keep raw timestamp for sorting
+        createdAtRaw,
+
+        // formatted for UI
+        createdAt: createdAtRaw ? createdAtRaw.toDate().toLocaleString() : "",
+      });
+    }
+
+    // sort using raw timestamp (important)
+    prompts.sort((a, b) => {
+      const aTime = a.createdAtRaw?.toMillis?.() || 0;
+      const bTime = b.createdAtRaw?.toMillis?.() || 0;
+      return bTime - aTime;
+    });
+
+    res.render("layout", {
+      userName: userInfo.find((u) => u.uid === currentUser)?.name || "User",
+      currentPage: "newsfeed",
+      prompts,
+      unlockedPosts,
+      answers,
+      userInfo,
+      currentUser,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error loading feed");
+  }
+});
+
+app.post("/answer/:postId", (req, res) => {
   const postId = req.params.postId;
   const answer = req.body.answer;
 
-  const prompt = prompts.find(prompt => prompt.postId === postId);
+  const prompt = prompts.find((prompt) => prompt.postId === postId);
 
   if (!prompt) {
     return res.status(404).send("Post not found");
   }
 
   unlockedPosts.add(postId);
-  console.log("added stuff to unlocked post", unlockedPosts)
+  console.log("added stuff to unlocked post", unlockedPosts);
   answers[postId] = answer;
 
   res.render("components/postCard", {
@@ -144,37 +323,55 @@ app.post("/answer/:postId", (req, res) => {
     postTitle: prompt.postTitle,
     postAuthor: prompt.postAuthor,
     postText: prompt.postText,
-    postUid: prompt.postUid,  
+    postUid: prompt.postUid,
     createdAt: prompt.createdAt,
     comments: prompt.comments,
     userPromptAnswer: answer,
     userInfo,
-    currentUser
+    currentUser,
   });
 });
 
-app.post("/post", (req, res) => {
-  const { question, postTitle, postText } = req.body;
+app.post("/post", async (req, res) => {
+  try {
+    const { question, postTitle, postText } = req.body;
 
-  const newPost = {
-    postId: "p" + nextPostId++,
-    question,
-    postTitle,
-    postText,
-    postUid: currentUser,
-    createdAt: new Date().toLocaleString(),
-    comments: [],
-    action: "/answer"
-  };
+    await db.collection("posts").add({
+      question,
+      postTitle,
+      postText,
+      postUid: currentUser,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
 
-  prompts.unshift(newPost);
-
-  res.redirect("/profile");
+    res.redirect("/profile");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error creating post");
+  }
 });
 
-app.post("/reset", (req, res) => {
-  unlockedPosts.length = 0;
-  res.redirect("/");
+app.post("/reset", async (req, res) => {
+  try {
+    const postsSnapshot = await db.collection("posts").get();
+
+    for (const postDoc of postsSnapshot.docs) {
+      const answersSnapshot = await postDoc.ref.collection("answers").get();
+
+      const batch = db.batch();
+
+      answersSnapshot.docs.forEach(doc => {
+        batch.delete(doc.ref);
+      });
+
+      await batch.commit();
+    }
+
+    res.redirect("/");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error resetting");
+  }
 });
 
 app.get("/login", (req, res) => {
@@ -191,12 +388,12 @@ app.post("/login", (req, res) => {
 
   // password exists from the form, but we are not checking it yet
   const user = userInfo.find(
-    user => user.name.toLowerCase() === username.toLowerCase()
+    (user) => user.name.toLowerCase() === username.toLowerCase(),
   );
 
   if (!user) {
     return res.render("login", {
-      error: "User not found"
+      error: "User not found",
     });
   }
 
@@ -205,5 +402,5 @@ app.post("/login", (req, res) => {
   res.redirect("/");
 });
 app.listen(PORT, () => {
-    console.log("running at 8080")
-})
+  console.log("running at 8080");
+});
