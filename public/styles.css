@@ -732,6 +732,104 @@ body {
   color: #94a3b8;
 }
 
+.avatar-edit-btn {
+  position: relative;
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  border-radius: 50%;
+}
+
+.avatar-edit-btn:hover .profile-avatar {
+  filter: brightness(0.65);
+}
+
+.avatar-hover-text {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 700;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.avatar-edit-btn:hover .avatar-hover-text {
+  opacity: 1;
+}
+
+.avatar-modal.hidden {
+  display: none;
+}
+
+.avatar-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: grid;
+  place-items: center;
+  z-index: 999;
+}
+
+.avatar-modal-card {
+  background: white;
+  padding: 28px;
+  border-radius: 18px;
+  width: min(90vw, 360px);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+}
+
+.avatar-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.avatar-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.cancel-btn,
+.save-btn {
+  border: none;
+  border-radius: 999px;
+  padding: 10px 16px;
+  cursor: pointer;
+}
+
+.cancel-btn {
+  background: #e5e7eb;
+}
+
+.save-btn {
+  background: #111827;
+  color: white;
+}
+
+.edit-profile-btn {
+  margin-top: 10px;
+  border: none;
+  border-radius: 999px;
+  padding: 8px 14px;
+  background: #111827;
+  color: white;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.avatar-form input[type="text"] {
+  width: 100%;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 1rem;
+}
+
 
 @media (max-width: 900px) {
   .navbar-inner {

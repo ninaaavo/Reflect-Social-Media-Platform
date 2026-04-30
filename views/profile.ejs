@@ -2,15 +2,80 @@
   <% const user = userInfo.find(u => u.uid === currentUser); %>
 
   <div class="profile-header-card">
-    <img
-      src="<%= user?.avatar || 'https://firebasestorage.googleapis.com/v0/b/reflect-cb8fd.firebasestorage.app/o/avatars%2Fdefault.jpg?alt=media&token=2db9e997-9a1a-4a4f-9add-39031ae1a727' %>"
-      alt="avatar"
-      class="profile-avatar"
-    />
+    <button class="avatar-edit-btn" onclick="openAvatarModal()" type="button">
+      <img
+        src="<%= user?.avatar || 'https://firebasestorage.googleapis.com/v0/b/reflect-cb8fd.firebasestorage.app/o/avatars%2Fdefault.jpg?alt=media&token=2db9e997-9a1a-4a4f-9add-39031ae1a727' %>"
+        alt="avatar"
+        class="profile-avatar"
+      />
+      <span class="avatar-hover-text">Change</span>
+    </button>
 
     <div class="profile-info">
       <h1 class="profile-name"><%= user?.name || "Unknown User" %></h1>
       <p class="profile-pronouns"><%= user?.pronouns || "" %></p>
+
+      <button type="button" class="edit-profile-btn" onclick="openProfileModal()">
+        Edit profile
+      </button>
+    </div>
+
+    <div id="profileModal" class="avatar-modal hidden">
+      <div class="avatar-modal-card">
+        <h2>Edit profile</h2>
+
+        <form action="/profile/edit" method="POST" class="avatar-form">
+          <input
+            type="text"
+            name="name"
+            value="<%= user?.name || '' %>"
+            placeholder="Name"
+            required
+          />
+
+          <input
+            type="text"
+            name="pronouns"
+            value="<%= user?.pronouns || '' %>"
+            placeholder="Pronouns"
+          />
+
+          <div class="avatar-modal-actions">
+            <button type="button" onclick="closeProfileModal()" class="cancel-btn">
+              Cancel
+            </button>
+
+            <button type="submit" class="save-btn">
+              Save
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div id="avatarModal" class="avatar-modal hidden">
+    <div class="avatar-modal-card">
+      <h2>Change avatar?</h2>
+
+      <form
+        action="/profile/avatar"
+        method="POST"
+        enctype="multipart/form-data"
+        class="avatar-form"
+      >
+        <input type="file" name="avatar" accept="image/*" required />
+
+        <div class="avatar-modal-actions">
+          <button type="button" onclick="closeAvatarModal()" class="cancel-btn">
+            Cancel
+          </button>
+
+          <button type="submit" class="save-btn">
+            Upload
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -36,3 +101,13 @@
     <% } %>
   </div>
 </section>
+
+<script>
+  function openAvatarModal() {
+    document.getElementById("avatarModal").classList.remove("hidden");
+  }
+
+  function closeAvatarModal() {
+    document.getElementById("avatarModal").classList.add("hidden");
+  }
+</script>

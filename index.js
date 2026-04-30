@@ -6,7 +6,7 @@ const serviceAccount = require("./firebase_key.json");
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  storageBucket: "gs://reflect-cb8fd.firebasestorage.app",
+  storageBucket: "reflect-cb8fd.firebasestorage.app",
 });
 
 const db = admin.firestore();
@@ -658,6 +658,57 @@ app.post("/comment/:postId", async (req, res) => {
   } catch (err) {
     console.error("Error saving comment:", err);
     res.status(500).json({ error: "Failed to save comment" });
+  }
+});
+
+app.post("/profile/avatar", upload.single("avatar"), async (req, res) => {
+  try {
+    const currentUser = req.user.uid;
+
+    if (!req.file) {
+      return res.status(400).send("No avatar uploaded");
+    }
+
+    const fileName = `avatars/${currentUser}_${Date.now()}_${req.file.originalname}`;
+    const fileUpload = bucket.file(fileName);
+
+    await fileUpload.save(req.file.buffer, {
+      metadata: {
+        contentType: req.file.mimetype,
+      },
+    });
+
+    await fileUpload.makePublic();
+
+    const avatarUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
+
+    await db.collection("users").doc(currentUser).update({
+      avatar: avatarUrl,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    res.redirect("/profile");
+  } catch (err) {
+    console.error("Error updating avatar:", err);
+    res.status(500).send("Failed to update avatar");
+  }
+});
+
+app.post("/profile/edit", async (req, res) => {
+  try {
+    const currentUser = req.user.uid;
+    const { name, pronouns } = req.body;
+
+    await db.collection("users").doc(currentUser).update({
+      name: name || "",
+      pronouns: pronouns || "",
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    res.redirect("/profile");
+  } catch (err) {
+    console.error("Error updating profile:", err);
+    res.status(500).send("Failed to update profile");
   }
 });
 
