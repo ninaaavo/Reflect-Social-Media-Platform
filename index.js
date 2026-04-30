@@ -315,6 +315,7 @@ app.get("/posts/:postId/comments", async (req, res) => {
   });
 
   res.render("components/commentsList", {
+    layout: false,
     comments,
     userInfo,
   });
