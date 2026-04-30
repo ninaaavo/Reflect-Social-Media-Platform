@@ -92,7 +92,8 @@
                   comments: post.comments,
                   userPromptAnswer: answers[post.postId] || "",
                   userInfo: userInfo,
-                  postId:post.postId
+                  postId:post.postId,
+                  imageUrl: post.imageUrl
                 }) %>
               <% }) %>
             <% } else { %>
@@ -117,7 +118,9 @@
                 comments: prompt.comments,
                 userPromptAnswer: answers[prompt.postId] || "",
                 userInfo:userInfo,
-                postId: prompt.postId
+                postId: prompt.postId,
+                imageUrl: prompt.imageUrl
+
               }) %>
               <%console.log("comments", prompt.comments)%>
             <% } else { %>

@@ -19,6 +19,16 @@
 
   <p class="post-content"><%= postText %></p>
 
+  <% if (imageUrl) { %>
+    <div class="post-image-wrapper">
+      <img
+        class="post-image"
+        src="<%= imageUrl %>"
+        alt="Post image"
+      />
+    </div>
+  <% } %>
+
   <!-- Comment Icon -->
   <div class="post-buttons">
     <button class="icon-btn comment-toggle" onclick="toggleComments(this)">
