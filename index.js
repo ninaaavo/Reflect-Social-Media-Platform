@@ -4,9 +4,11 @@ const serviceAccount = require("./firebase_key.json");
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
+  storageBucket: "gs://reflect-cb8fd.firebasestorage.app",
 });
 
 const db = admin.firestore();
+const bucket = admin.storage().bucket();
 
 const express = require("express");
 
@@ -443,15 +445,36 @@ app.post("/answer/:postId", async (req, res) => {
   }
 });
 
-app.post("/post", async (req, res) => {
+app.post("/post", upload.single("image"), async (req, res) => {
   try {
     const { question, postTitle, postText } = req.body;
+
+    let imageUrl = null;
+    let imagePath = null;
+
+    if (req.file) {
+      const fileName = `posts/${Date.now()}_${req.file.originalname}`;
+      const fileUpload = bucket.file(fileName);
+
+      await fileUpload.save(req.file.buffer, {
+        metadata: {
+          contentType: req.file.mimetype,
+        },
+      });
+
+      await fileUpload.makePublic();
+
+      imageUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
+      imagePath = fileName;
+    }
 
     await db.collection("posts").add({
       question,
       postTitle,
       postText,
       postUid: currentUser,
+      imageUrl,
+      imagePath,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
