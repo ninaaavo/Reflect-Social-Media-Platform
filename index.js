@@ -11,11 +11,8 @@ admin.initializeApp({
 
 const db = admin.firestore();
 const bucket = admin.storage().bucket();
-
 const express = require("express");
-
 const app = express();
-
 const session = require("express-session");
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
@@ -33,11 +30,15 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
+app.set("view engine", "ejs");
+app.use(express.static("public"));
+app.use(express.json());
+
 const PORT = 8080;
 
 const unlockedPosts = new Set();
 
-
+// ------------ Set up Oauth -------------
 
 passport.use(
   new GoogleStrategy(
@@ -106,6 +107,8 @@ function requireAuth(req, res, next) {
   next();
 }
 
+// --------------- Sign in Routes ------------
+
 app.get("/signin", (req, res) => {
   res.render("login", {
     error: null,
@@ -135,7 +138,6 @@ app.post("/logout", (req, res) => {
   });
 });
 
-// Protect everything below this line
 app.use((req, res, next) => {
   if (req.isAuthenticated && req.isAuthenticated()) {
     return next();
@@ -144,12 +146,10 @@ app.use((req, res, next) => {
   return res.redirect("/signin");
 });
 
-app.set("view engine", "ejs");
-app.use(express.static("public"));
-app.use(express.json());
 
 
 // ---------- Upload Route ------------ //
+
 const multer = require("multer");
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -191,7 +191,7 @@ app.post("/upload-image", upload.single("image"), async (req, res) => {
   }
 });
 
-// -----------------------------
+// --------- Pages Routes --------------//
 
 app.get("/profile", async (req, res) => {
   const currentUser = req.user.uid;
