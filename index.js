@@ -128,7 +128,7 @@ app.get(
     failureRedirect: "/signin",
   }),
   (req, res) => {
-    res.redirect("/");
+    res.redirect("/profile");
   }
 );
 
@@ -136,6 +136,47 @@ app.post("/logout", (req, res) => {
   req.logout(() => {
     res.redirect("/signin");
   });
+});
+
+app.get("/signup", (req, res) => {
+  res.render("signup", { error: null });
+});
+
+app.post("/signup", async (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.render("signup", { error: "Missing fields" });
+  }
+
+  try {
+    // check if user exists
+    const snapshot = await db
+      .collection("users")
+      .where("email", "==", email)
+      .get();
+
+    if (!snapshot.empty) {
+      return res.render("signup", { error: "User already exists" });
+    }
+
+    // create user
+    const newUser = {
+      email,
+      password, // ⚠️ plain text for now (fix later)
+      createdAt: new Date(),
+    };
+
+    const docRef = await db.collection("users").add(newUser);
+
+    // simple session (adjust based on your auth system)
+    req.session.userId = docRef.id;
+
+    res.redirect("/profile");
+  } catch (err) {
+    console.error(err);
+    res.render("signup", { error: "Signup failed" });
+  }
 });
 
 app.use((req, res, next) => {
