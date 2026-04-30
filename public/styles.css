@@ -72,6 +72,8 @@ body {
   letter-spacing: 0.5em;
   color: var(--primary-text);
   text-align: center;
+  text-decoration: none;
+
 }
 
 .nav-links {
