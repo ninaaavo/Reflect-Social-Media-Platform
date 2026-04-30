@@ -113,6 +113,7 @@ app.get("/profile", async (req, res) => {
     };
   });
 
+  console.log("The prompts are", prompts)
   res.render("layout", {
     currentPage: "profile",
     currentUser,
@@ -304,32 +305,65 @@ app.get("/", async (req, res) => {
   }
 });
 
-app.post("/answer/:postId", (req, res) => {
-  const postId = req.params.postId;
-  const answer = req.body.answer;
+app.post("/answer/:postId", async (req, res) => {
+  try {
+    const postId = req.params.postId;
+    const answer = req.body.answer;
 
-  const prompt = prompts.find((prompt) => prompt.postId === postId);
+    const postRef = db.collection("posts").doc(postId);
+    const postDoc = await postRef.get();
 
-  if (!prompt) {
-    return res.status(404).send("Post not found");
+    if (!postDoc.exists) {
+      return res.status(404).send("Post not found");
+    }
+
+    await postRef
+      .collection("answers")
+      .doc(currentUser)
+      .set({
+        uid: currentUser,
+        answer,
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+
+    const post = {
+      postId: postDoc.id,
+      ...postDoc.data(),
+    };
+
+    const commentsSnapshot = await postRef
+      .collection("comments")
+      .get();
+
+    const comments = commentsSnapshot.docs.map(doc => ({
+      commentId: doc.id,
+      ...doc.data(),
+      createdAt: doc.data().createdAt?.toDate?.().toLocaleString() || "",
+    }));
+
+    // ===== fetch users =====
+    const usersSnapshot = await db.collection("users").get();
+    const userInfo = usersSnapshot.docs.map((doc) => ({
+      uid: doc.id,
+      ...doc.data(),
+    }));
+    
+    res.render("components/postCard", {
+      postId: post.postId,
+      postTitle: post.postTitle,
+      postAuthor: post.postAuthor,
+      postText: post.postText,
+      postUid: post.postUid,
+      createdAt: post.createdAt?.toDate?.().toLocaleString() || "",
+      comments,
+      userPromptAnswer: answer,
+      userInfo,
+      currentUser,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error saving answer");
   }
-
-  unlockedPosts.add(postId);
-  console.log("added stuff to unlocked post", unlockedPosts);
-  answers[postId] = answer;
-
-  res.render("components/postCard", {
-    postId: prompt.postId,
-    postTitle: prompt.postTitle,
-    postAuthor: prompt.postAuthor,
-    postText: prompt.postText,
-    postUid: prompt.postUid,
-    createdAt: prompt.createdAt,
-    comments: prompt.comments,
-    userPromptAnswer: answer,
-    userInfo,
-    currentUser,
-  });
 });
 
 app.post("/post", async (req, res) => {
@@ -371,6 +405,34 @@ app.post("/reset", async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).send("Error resetting");
+  }
+});
+
+app.post("/comment/:postId", async (req, res) => {
+  try {
+    const { postId } = req.params;
+    const { uid, text } = req.body;
+
+    if (!uid || !text) {
+      return res.status(400).json({ error: "Missing uid or text" });
+    }
+
+    const comment = {
+      uid,
+      text,
+      createdAt: new Date().toLocaleString(),
+    };
+
+    const postRef = db.collection("posts").doc(postId);
+
+    await postRef.update({
+      comments: admin.firestore.FieldValue.arrayUnion(comment),
+    });
+
+    res.json(comment);
+  } catch (err) {
+    console.error("Error saving comment:", err);
+    res.status(500).json({ error: "Failed to save comment" });
   }
 });
 

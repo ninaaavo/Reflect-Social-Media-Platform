@@ -91,7 +91,8 @@
                   postText: post.postText,
                   comments: post.comments,
                   userPromptAnswer: answers[post.postId] || "",
-                  userInfo: userInfo
+                  userInfo: userInfo,
+                  postId:post.postId
                 }) %>
               <% }) %>
             <% } else { %>
@@ -115,9 +116,10 @@
                 postText: prompt.postText,
                 comments: prompt.comments,
                 userPromptAnswer: answers[prompt.postId] || "",
-                userInfo:userInfo
+                userInfo:userInfo,
+                postId: prompt.postId
               }) %>
-
+              <%console.log("comments", prompt.comments)%>
             <% } else { %>
 
               <!-- SHOW PROMPT FIRST -->

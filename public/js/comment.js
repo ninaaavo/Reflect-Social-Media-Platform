@@ -1,28 +1,25 @@
 function toggleComments(button) {
   console.log("toggle comment called");
+
   const card = button.closest(".post-card");
   const section = card.querySelector(".comment-section");
 
   section.classList.toggle("hidden");
-  btn.classList.toggle("active");
+  button.classList.toggle("active");
 }
 
 function autoResize(el) {
   el.style.height = "36px";
   el.style.height = Math.min(el.scrollHeight, 120) + "px";
 
-  if (el.scrollHeight > 120) {
-    el.style.overflowY = "auto";
-  } else {
-    el.style.overflowY = "hidden";
-  }
+  el.style.overflowY = el.scrollHeight > 120 ? "auto" : "hidden";
 }
 
 function toggleSave(btn) {
   btn.classList.toggle("active");
 }
 
-function sendComment(button) {
+async function sendComment(button) {
   const card = button.closest(".post-card");
   const input = card.querySelector(".comment-input");
   const list = card.querySelector(".comments-list");
@@ -30,30 +27,52 @@ function sendComment(button) {
   const text = input.value.trim();
   if (!text) return;
 
+  const postId = card.dataset.postId;
   const uid = window.currentUser;
 
-  const user = window.userInfo.find(user => user.uid === uid) || {
-    name: "Unknown User",
-    avatar: "/images/default.jpg"
-  };
+  try {
+    const response = await fetch(`/comment/${postId}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        uid,
+        text,
+      }),
+    });
 
-  const template = document.getElementById("comment-template");
-  const newComment = template.content.firstElementChild.cloneNode(true);
+    if (!response.ok) {
+      throw new Error("Failed to save comment");
+    }
 
-  // create timestamp
-  const now = new Date();
-  const time = now.toLocaleString(); // simple + clean
+    const savedComment = await response.json();
 
-  newComment.querySelector(".comment-avatar").src = user.avatar;
-  newComment.querySelector(".comment-avatar").alt = user.name;
-  newComment.querySelector(".comment-username").textContent = user.name;
-  newComment.querySelector(".comment-text").textContent = text;
-  newComment.querySelector(".comment-time").textContent = time;
+    const user = window.userInfo.find(user => user.uid === uid) || {
+      name: "Unknown User",
+      avatar: "/images/default.jpg",
+    };
 
-  const emptyMessage = list.querySelector(".no-comments");
-  if (emptyMessage) emptyMessage.remove();
+    const template = document.getElementById("comment-template");
+    const newComment = template.content.firstElementChild.cloneNode(true);
 
-  list.appendChild(newComment);
-  list.scrollTop = list.scrollHeight;
-  input.value = "";
+    newComment.querySelector(".comment-avatar").src = user.avatar;
+    newComment.querySelector(".comment-avatar").alt = user.name;
+    newComment.querySelector(".comment-username").textContent = user.name;
+    newComment.querySelector(".comment-text").textContent = savedComment.text;
+    newComment.querySelector(".comment-time").textContent = savedComment.createdAt;
+
+    const emptyMessage = list.querySelector(".no-comments");
+    if (emptyMessage) emptyMessage.remove();
+
+    list.appendChild(newComment);
+    list.scrollTop = list.scrollHeight;
+
+    input.value = "";
+    autoResize(input);
+
+  } catch (err) {
+    console.error(err);
+    alert("Could not send comment. Try again.");
+  }
 }
