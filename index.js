@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 const admin = require("firebase-admin");
 
 const serviceAccount = require("./firebase_key.json");
@@ -13,80 +15,134 @@ const bucket = admin.storage().bucket();
 const express = require("express");
 
 const app = express();
+
+const session = require("express-session");
+const passport = require("passport");
+const GoogleStrategy = require("passport-google-oauth20").Strategy;
+
 app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "dev-secret",
+    resave: false,
+    saveUninitialized: false,
+  })
+);
+
+app.use(passport.initialize());
+app.use(passport.session());
+
 const PORT = 8080;
 
 const unlockedPosts = new Set();
-// const answers = {};
 
-let currentUser = "u1";
-// const prompts = [
-//   {
-//     postId: "p1",
-//     question: "What do you think about ads on social media?",
-//     postTitle: "Ads are making social media feel less human",
-//     postUid: "u1",
-//     createdAt: "2026-04-25 4:30 PM",
-//     postText: "I feel like every platform slowly turns into an ad machine. At first it feels like a place to connect, then suddenly every few posts are sponsored, recommended, or trying to sell me something.",
-//     comments: [
-//       { uid: "u1", text: "Yeah, it feels like the actual people are buried under sponsored posts.", createdAt: "2026-04-25 4:35 PM" },
-//       { uid: "u2", text: "I honestly stopped noticing ads because there are so many now.", createdAt: "2026-04-25 4:37 PM" },
-//       { uid: "u3", text: "The worst is when the ad looks like a normal post.", createdAt: "2026-04-25 4:40 PM" }
-//     ],
-//     action: "/answer",
-//   },
-//   {
-//     postId: "p2",
-//     question: "Do you think long lines in public spaces are acceptable?",
-//     postTitle: "The line at Worcester Commons was ridiculous today",
-//     postUid: "u2",
-//     createdAt: "2026-04-25 3:15 PM",
-//     postText: "I waited so long just to get food that I almost gave up. I get that places get busy, but at some point it feels like the system just is not built for the amount of people using it.",
-//     comments: [
-//       { uid: "u1", text: "Worcester gets so packed during lunch, it is actually wild.", createdAt: "2026-04-25 3:20 PM" },
-//       { uid: "u2", text: "I feel like they need better traffic flow or more stations open.", createdAt: "2026-04-25 3:22 PM" },
-//       { uid: "u3", text: "Sometimes the line looks worse than it actually is, but today was bad.", createdAt: "2026-04-25 3:25 PM" }
-//     ],
-//     action: "/answer",
-//   },
-//   {
-//     postId: "p3",
-//     question: "Should apps limit screen time by default?",
-//     postTitle: "Apps know exactly how to keep us scrolling",
-//     postUid: "u3",
-//     createdAt: "2026-04-25 1:05 PM",
-//     postText: "I think apps should have stronger default screen time limits. Most people do not open an app planning to lose an hour, but the design makes it really easy to keep going.",
-//     comments: [
-//       { uid: "u1", text: "Default limits would help because most people never change settings.", createdAt: "2026-04-25 1:10 PM" },
-//       { uid: "u2", text: "I agree, but I also feel like people should still be able to override it.", createdAt: "2026-04-25 1:12 PM" },
-//       { uid: "u3", text: "Infinite scroll is the real villain here.", createdAt: "2026-04-25 1:14 PM" }
-//     ],
-//     action: "/answer",
-//   }
-// ];
-// let nextPostId = prompts.length + 1;
 
-// const userInfo = [
-//   {
-//     uid: "u1",
-//     name: "Nina",
-//     pronouns: "she/her",
-//     avatar: "/images/nina.jpg",
-//   },
-//   {
-//     uid: "u2",
-//     name: "StudentUser23",
-//     pronouns: "he/him",
-//     avatar: "/images/student.jpg",
-//   },
-//   {
-//     uid: "u3",
-//     name: "Maya",
-//     pronouns: "she/her",
-//     avatar: "/images/maya.jpg",
-//   },
-// ];
+
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      callbackURL: "http://localhost:8080/auth/google/callback",
+    },
+    async (accessToken, refreshToken, profile, done) => {
+      try {
+        const uid = profile.id;
+
+        const userRef = db.collection("users").doc(uid);
+        const userSnap = await userRef.get();
+
+        if (!userSnap.exists) {
+          await userRef.set({
+            uid,
+            name: profile.displayName,
+            email: profile.emails?.[0]?.value || "",
+            avatar: profile.photos?.[0]?.value || "/images/default.jpg",
+            pronouns: "",
+            createdAt: new Date().toLocaleString(),
+          });
+        }
+
+        return done(null, {
+          uid,
+          name: profile.displayName,
+          email: profile.emails?.[0]?.value || "",
+          avatar: profile.photos?.[0]?.value || "/images/default.jpg",
+        });
+      } catch (err) {
+        return done(err, null);
+      }
+    }
+  )
+);
+
+passport.serializeUser((user, done) => {
+  done(null, user.uid);
+});
+
+passport.deserializeUser(async (uid, done) => {
+  try {
+    const userSnap = await db.collection("users").doc(uid).get();
+
+    if (!userSnap.exists) {
+      return done(null, false);
+    }
+
+    done(null, {
+      uid: userSnap.id,
+      ...userSnap.data(),
+    });
+  } catch (err) {
+    done(err, null);
+  }
+});
+
+function requireAuth(req, res, next) {
+  if (!req.isAuthenticated || !req.isAuthenticated()) {
+    return res.redirect("/signin");
+  }
+
+  next();
+}
+
+app.get("/signin", (req, res) => {
+  res.render("login", {
+    error: null,
+  });
+});
+
+app.get(
+  "/auth/google",
+  passport.authenticate("google", {
+    scope: ["profile", "email"],
+  })
+);
+
+app.get(
+  "/auth/google/callback",
+  passport.authenticate("google", {
+    failureRedirect: "/signin",
+  }),
+  (req, res) => {
+    res.redirect("/");
+  }
+);
+
+app.post("/logout", (req, res) => {
+  req.logout(() => {
+    res.redirect("/signin");
+  });
+});
+
+// Protect everything below this line
+app.use((req, res, next) => {
+  if (req.isAuthenticated && req.isAuthenticated()) {
+    return next();
+  }
+
+  return res.redirect("/signin");
+});
 
 app.set("view engine", "ejs");
 app.use(express.static("public"));
@@ -138,6 +194,7 @@ app.post("/upload-image", upload.single("image"), async (req, res) => {
 // -----------------------------
 
 app.get("/profile", async (req, res) => {
+  const currentUser = req.user.uid;
   const usersSnapshot = await db.collection("users").get();
   const postsSnapshot = await db
     .collection("posts")
@@ -171,6 +228,7 @@ app.get("/profile", async (req, res) => {
 });
 
 app.get("/posts/:postId/comments", async (req, res) => {
+  const currentUser = req.user.uid;
   const { postId } = req.params;
 
   const usersSnapshot = await db.collection("users").get();
@@ -316,6 +374,7 @@ app.get("/posts/:postId/comments", async (req, res) => {
 // later populate this with db
 
 app.get("/", async (req, res) => {
+  const currentUser = req.user.uid;
   try {
     // ===== fetch users =====
     const usersSnapshot = await db.collection("users").get();
@@ -385,6 +444,7 @@ app.get("/", async (req, res) => {
 });
 
 app.post("/answer/:postId", async (req, res) => {
+  const currentUser = req.user.uid;
   try {
     const postId = req.params.postId;
     const answer = req.body.answer;
@@ -438,6 +498,7 @@ app.post("/answer/:postId", async (req, res) => {
       userPromptAnswer: answer,
       userInfo,
       currentUser,
+      imageUrl: post.imageUrl
     });
   } catch (err) {
     console.error(err);
@@ -446,6 +507,7 @@ app.post("/answer/:postId", async (req, res) => {
 });
 
 app.post("/post", upload.single("image"), async (req, res) => {
+  const currentUser = req.user.uid;
   try {
     const { question, postTitle, postText } = req.body;
 
@@ -512,6 +574,7 @@ app.post("/comment/:postId", async (req, res) => {
   console.log("im posting comment");
 
   try {
+    const currentUser = req.user.uid;
     const { postId } = req.params;
     const { uid, text } = req.body;
 
@@ -544,33 +607,6 @@ app.post("/comment/:postId", async (req, res) => {
   }
 });
 
-app.get("/login", (req, res) => {
-  res.render("login");
-});
-
-app.post("/logout", (req, res) => {
-  currentUser = null;
-  res.redirect("/login");
-});
-
-app.post("/login", (req, res) => {
-  const { username, password } = req.body;
-
-  // password exists from the form, but we are not checking it yet
-  const user = userInfo.find(
-    (user) => user.name.toLowerCase() === username.toLowerCase(),
-  );
-
-  if (!user) {
-    return res.render("login", {
-      error: "User not found",
-    });
-  }
-
-  currentUser = user.uid;
-
-  res.redirect("/");
-});
 app.listen(PORT, () => {
   console.log("running at 8080");
 });
