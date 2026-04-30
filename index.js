@@ -90,6 +90,51 @@ app.set("view engine", "ejs");
 app.use(express.static("public"));
 app.use(express.json());
 
+
+// ---------- Upload Route ------------ //
+const multer = require("multer");
+const upload = multer({ storage: multer.memoryStorage() });
+
+app.post("/upload-image", upload.single("image"), async (req, res) => {
+  try {
+    const file = req.file;
+
+    if (!file) {
+      return res.status(400).send("No file uploaded");
+    }
+
+    const fileName = `posts/${Date.now()}_${file.originalname}`;
+    const fileUpload = bucket.file(fileName);
+
+    const blobStream = fileUpload.createWriteStream({
+      metadata: {
+        contentType: file.mimetype,
+      },
+    });
+
+    blobStream.on("error", (err) => {
+      console.error(err);
+      res.status(500).send("Upload error");
+    });
+
+    blobStream.on("finish", async () => {
+      // Make public
+      await fileUpload.makePublic();
+
+      const publicUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
+
+      res.json({ imageUrl: publicUrl, imagePath: fileName });
+    });
+
+    blobStream.end(file.buffer);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Something went wrong");
+  }
+});
+
+// -----------------------------
+
 app.get("/profile", async (req, res) => {
   const usersSnapshot = await db.collection("users").get();
   const postsSnapshot = await db

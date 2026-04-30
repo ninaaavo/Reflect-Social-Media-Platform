@@ -152,7 +152,8 @@
 
       <h2 class="write-post-title">Write a new post</h2>
 
-      <form action="/post" method="POST" class="write-post-form">
+      <form action="/post" method="POST" enctype="multipart/form-data" class="write-post-form">
+        
         <label>
           Prompt question
           <input
@@ -181,6 +182,22 @@
             required
           ></textarea>
         </label>
+
+        <!-- 🖼 Image Upload -->
+        <label class="image-upload-label">
+          Add image (optional)
+          <input
+            type="file"
+            name="image"
+            accept="image/*"
+            onchange="previewImage(event)"
+          />
+        </label>
+
+        <!-- Preview -->
+        <div class="image-preview-container">
+          <img id="imagePreview" class="image-preview hidden" />
+        </div>
 
         <button type="submit" class="submit-post-btn">
           Post
