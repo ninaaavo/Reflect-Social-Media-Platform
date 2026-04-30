@@ -66,12 +66,10 @@
 
           <div class="profile-header-card">
             <img
-              src="<%= user?.avatar || 'gs://reflect-cb8fd.firebasestorage.app/avatars/default.jpg' %>"
+              src="<%= user?.avatar || 'https://firebasestorage.googleapis.com/v0/b/reflect-cb8fd.firebasestorage.app/o/avatars%2Fdefault.jpg?alt=media&token=2db9e997-9a1a-4a4f-9add-39031ae1a727' %>"
               alt="avatar"
               class="profile-avatar"
-            />
-
-            
+            />            
 
             <div class="profile-info">
               <h1 class="profile-name"><%= user?.name || "Unknown User" %></h1>
