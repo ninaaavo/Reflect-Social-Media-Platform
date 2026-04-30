@@ -1,3 +1,13 @@
+const admin = require("firebase-admin");
+
+const serviceAccount = require("./firebase_key.json");
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
+
+const db = admin.firestore();
+
 const express = require('express');
 
 const app = express();
@@ -90,6 +100,15 @@ app.get("/profile", (req, res) => {
   });
 });
 
+
+app.get("/test-db", async (req, res) => {
+  await db.collection("test").doc("hello").set({
+    message: "it works",
+    time: new Date(),
+  });
+
+  res.send("wrote to firestore");
+});
 
 // later populate this with db 
 app.get("/", (req, res) => {

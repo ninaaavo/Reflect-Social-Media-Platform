@@ -26,7 +26,7 @@ build/
 .tmp/
 .temp/
 
-# VS Code settings (optional)
+# VS Code settings
 
 .vscode/
 
@@ -35,6 +35,10 @@ build/
 .AppleDouble
 .LSOverride
 
-# Coverage (if you add testing later)
+# Coverage 
 
 coverage/
+
+
+# Firebase admin key
+firebase_key.json
