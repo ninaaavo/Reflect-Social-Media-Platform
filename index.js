@@ -542,14 +542,13 @@ app.get("/posts/:postId/comments", async (req, res) => {
 
 //     await batch.commit();
 
-//     res.send("Database seeded successfully 🚀");
+//     res.send("Database seeded successfully");
 //   } catch (err) {
 //     console.error(err);
 //     res.status(500).send("Error seeding database");
 //   }
 // });
 
-// later populate this with db
 
 app.get("/", async (req, res) => {
   const currentUser = req.user.uid;
