@@ -6,7 +6,11 @@ const admin = require("firebase-admin");
 const serviceAccount = require("./firebase_key.json");
 
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
+  credential: admin.credential.cert({
+    projectId: process.env.FIREBASE_PROJECT_ID,
+    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+    privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n"),
+  }),
   storageBucket: "reflect-cb8fd.firebasestorage.app",
 });
 
@@ -55,7 +59,6 @@ const promptStarters = [
   "Why might someone react to",
   "What are possible interpretations of",
 ];
-
 
 // ------------ Set up Oauth ------------- //
 
@@ -513,7 +516,6 @@ app.get("/posts/:postId/comments", async (req, res) => {
   });
 });
 
-
 // ------- Post Routes -------- //
 
 // == Post user answer to prompt == //
@@ -576,7 +578,6 @@ app.post("/answer/:postId", async (req, res) => {
     res.status(500).send("Error saving answer");
   }
 });
-
 
 // == Post new post == //
 
@@ -698,11 +699,14 @@ app.post("/profile/edit", async (req, res) => {
     const currentUser = req.user.uid;
     const { name, pronouns } = req.body;
 
-    await db.collection("users").doc(currentUser).update({
-      name: name || "",
-      pronouns: pronouns || "",
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-    });
+    await db
+      .collection("users")
+      .doc(currentUser)
+      .update({
+        name: name || "",
+        pronouns: pronouns || "",
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
 
     res.redirect("/profile");
   } catch (err) {
@@ -711,10 +715,10 @@ app.post("/profile/edit", async (req, res) => {
   }
 });
 
-// == seed to populate page == // 
+// == seed to populate page == //
 app.get("/seed", async (req, res) => {
-  res.send("Don't be naughty!")
-  return
+  res.send("Don't be naughty!");
+  return;
   try {
     const batch = db.batch();
 
@@ -740,7 +744,7 @@ app.get("/seed", async (req, res) => {
       },
     ];
 
-    userInfo.forEach(user => {
+    userInfo.forEach((user) => {
       const ref = db.collection("users").doc(user.uid);
       batch.set(ref, {
         name: user.name,
@@ -757,11 +761,21 @@ app.get("/seed", async (req, res) => {
         question: "What do you think about ads on social media?",
         postTitle: "Ads are making social media feel less human",
         postUid: "u1",
-        postText: "I feel like every platform slowly turns into an ad machine...",
+        postText:
+          "I feel like every platform slowly turns into an ad machine...",
         comments: [
-          { uid: "u1", text: "Yeah, it feels like the actual people are buried under sponsored posts." },
-          { uid: "u2", text: "I honestly stopped noticing ads because there are so many now." },
-          { uid: "u3", text: "The worst is when the ad looks like a normal post." }
+          {
+            uid: "u1",
+            text: "Yeah, it feels like the actual people are buried under sponsored posts.",
+          },
+          {
+            uid: "u2",
+            text: "I honestly stopped noticing ads because there are so many now.",
+          },
+          {
+            uid: "u3",
+            text: "The worst is when the ad looks like a normal post.",
+          },
         ],
       },
       {
@@ -771,9 +785,18 @@ app.get("/seed", async (req, res) => {
         postUid: "u2",
         postText: "I waited so long just to get food that I almost gave up...",
         comments: [
-          { uid: "u1", text: "Worcester gets so packed during lunch, it is actually wild." },
-          { uid: "u2", text: "I feel like they need better traffic flow or more stations open." },
-          { uid: "u3", text: "Sometimes the line looks worse than it actually is, but today was bad." }
+          {
+            uid: "u1",
+            text: "Worcester gets so packed during lunch, it is actually wild.",
+          },
+          {
+            uid: "u2",
+            text: "I feel like they need better traffic flow or more stations open.",
+          },
+          {
+            uid: "u3",
+            text: "Sometimes the line looks worse than it actually is, but today was bad.",
+          },
         ],
       },
       {
@@ -781,13 +804,20 @@ app.get("/seed", async (req, res) => {
         question: "Should apps limit screen time by default?",
         postTitle: "Apps know exactly how to keep us scrolling",
         postUid: "u3",
-        postText: "I think apps should have stronger default screen time limits...",
+        postText:
+          "I think apps should have stronger default screen time limits...",
         comments: [
-          { uid: "u1", text: "Default limits would help because most people never change settings." },
-          { uid: "u2", text: "I agree, but I also feel like people should still be able to override it." },
-          { uid: "u3", text: "Infinite scroll is the real villain here." }
+          {
+            uid: "u1",
+            text: "Default limits would help because most people never change settings.",
+          },
+          {
+            uid: "u2",
+            text: "I agree, but I also feel like people should still be able to override it.",
+          },
+          { uid: "u3", text: "Infinite scroll is the real villain here." },
         ],
-      }
+      },
     ];
 
     // Create posts
@@ -804,9 +834,7 @@ app.get("/seed", async (req, res) => {
 
       // comments subcollection
       post.comments.forEach((comment, index) => {
-        const commentRef = postRef
-          .collection("comments")
-          .doc(`c${index + 1}`);
+        const commentRef = postRef.collection("comments").doc(`c${index + 1}`);
 
         batch.set(commentRef, {
           uid: comment.uid,
