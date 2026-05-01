@@ -2,6 +2,17 @@
   <% const user = userInfo.find(u => u.uid === profileUid); %>
   <div class="profile-header-card">
     <% if (isOwnProfile) { %>
+      <button class="edit-icon-btn icon-btn" onclick="openProfileModal()" type="button">
+        <svg 
+          viewBox="-6.5 0 32 32" 
+          xmlns="http://www.w3.org/2000/svg"
+          class="edit-icon"
+        >
+          <path d="M19.28 10.32c0-0.24-0.080-0.44-0.24-0.6l-3.12-3.12c-0.32-0.32-0.84-0.32-1.2 0l-2.36 2.36-11.32 11.36c-0.12 0.12-0.2 0.28-0.24 0.44l-0.8 3.92c-0.040 0.28 0.040 0.56 0.24 0.76 0.16 0.16 0.36 0.24 0.6 0.24 0.040 0 0.12 0 0.16 0l3.92-0.8c0.16-0.040 0.32-0.12 0.44-0.24l13.68-13.68c0.16-0.2 0.24-0.4 0.24-0.64zM4.32 23.24l-2.44 0.48 0.52-2.4 10.56-10.56 1.92 1.92-10.56 10.56zM16.080 11.52l-1.92-1.92 1.2-1.2 1.92 1.92-1.2 1.2z"/>
+        </svg>
+      </button>
+    <% } %>
+    <% if (isOwnProfile) { %>
       <button class="avatar-edit-btn" onclick="openAvatarModal()" type="button">
         <img
           src="<%= user?.avatar || 'https://firebasestorage.googleapis.com/v0/b/reflect-cb8fd.firebasestorage.app/o/avatars%2Fdefault.jpg?alt=media&token=2db9e997-9a1a-4a4f-9add-39031ae1a727' %>"
@@ -22,11 +33,6 @@
       <h1 class="profile-name"><%= user?.name || "Unknown User" %></h1>
       <p class="profile-pronouns"><%= user?.pronouns || "" %></p>
 
-      <% if (isOwnProfile) { %>
-          <button type="button" class="edit-profile-btn" onclick="openProfileModal()">
-            Edit profile
-          </button>
-        <% } %>
     </div>
 
     <div id="profileModal" class="avatar-modal hidden">
