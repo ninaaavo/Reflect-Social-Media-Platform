@@ -1,3 +1,4 @@
+// -------------- Setting up --------- //
 require("dotenv").config();
 
 const admin = require("firebase-admin");
@@ -56,7 +57,7 @@ const promptStarters = [
 ];
 
 
-// ------------ Set up Oauth -------------
+// ------------ Set up Oauth ------------- //
 
 passport.use(
   new GoogleStrategy(
@@ -95,7 +96,6 @@ passport.use(
     },
   ),
 );
-
 
 passport.use(
   new LocalStrategy(
@@ -170,7 +170,7 @@ function requireAuth(req, res, next) {
   next();
 }
 
-// --------------- Sign in Routes ------------
+// --------------- Sign Up / Log in ------------ //
 
 app.get("/signin", (req, res) => {
   res.render("login", {
@@ -256,7 +256,7 @@ app.post("/signup", async (req, res, next) => {
     const userData = {
       email,
       password: hashedPassword,
-      name, // ✅ now guaranteed
+      name,
       avatar: "/images/default.jpg",
       pronouns: "",
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -290,7 +290,7 @@ app.use((req, res, next) => {
   return res.redirect("/signin");
 });
 
-// ---------- Upload Route ------------ //
+// ----------  File Upload Route ------------ //
 
 const multer = require("multer");
 const upload = multer({ storage: multer.memoryStorage() });
@@ -334,6 +334,8 @@ app.post("/upload-image", upload.single("image"), async (req, res) => {
 });
 
 // --------- Pages Routes --------------//
+
+// == Profile Page == //
 
 app.get("/profile", async (req, res) => {
   res.redirect(`/profile/${req.user.uid}`);
@@ -404,152 +406,7 @@ app.get("/profile/:uid", async (req, res) => {
   }
 });
 
-app.get("/posts/:postId/comments", async (req, res) => {
-  const currentUser = req.user.uid;
-  const { postId } = req.params;
-
-  const usersSnapshot = await db.collection("users").get();
-
-  const userInfo = usersSnapshot.docs.map((doc) => ({
-    uid: doc.id,
-    ...doc.data(),
-  }));
-  const commentsSnapshot = await db
-    .collection("posts")
-    .doc(postId)
-    .collection("comments")
-    .orderBy("createdAt", "asc")
-    .get();
-
-  const comments = commentsSnapshot.docs.map((doc) => {
-    const data = doc.data();
-
-    return {
-      commentId: doc.id,
-      ...data,
-      createdAt: data.createdAt ? data.createdAt.toDate().toLocaleString() : "",
-    };
-  });
-
-  res.render("components/commentsList", {
-    layout: false,
-    comments,
-    userInfo,
-  });
-});
-
-// app.get("/seed", async (req, res) => {
-//   try {
-//     const batch = db.batch();
-
-//     // ===== USERS =====
-//     const userInfo = [
-//       {
-//         uid: "u1",
-//         name: "Nina",
-//         pronouns: "she/her",
-//         avatar: "/images/nina.jpg",
-//       },
-//       {
-//         uid: "u2",
-//         name: "StudentUser23",
-//         pronouns: "he/him",
-//         avatar: "/images/student.jpg",
-//       },
-//       {
-//         uid: "u3",
-//         name: "Maya",
-//         pronouns: "she/her",
-//         avatar: "/images/maya.jpg",
-//       },
-//     ];
-
-//     userInfo.forEach(user => {
-//       const ref = db.collection("users").doc(user.uid);
-//       batch.set(ref, {
-//         name: user.name,
-//         pronouns: user.pronouns,
-//         avatar: user.avatar,
-//         createdAt: admin.firestore.FieldValue.serverTimestamp(),
-//       });
-//     });
-
-//     // ===== POSTS =====
-//     const prompts = [
-//       {
-//         postId: "p1",
-//         question: "What do you think about ads on social media?",
-//         postTitle: "Ads are making social media feel less human",
-//         postUid: "u1",
-//         postText: "I feel like every platform slowly turns into an ad machine...",
-//         comments: [
-//           { uid: "u1", text: "Yeah, it feels like the actual people are buried under sponsored posts." },
-//           { uid: "u2", text: "I honestly stopped noticing ads because there are so many now." },
-//           { uid: "u3", text: "The worst is when the ad looks like a normal post." }
-//         ],
-//       },
-//       {
-//         postId: "p2",
-//         question: "Do you think long lines in public spaces are acceptable?",
-//         postTitle: "The line at Worcester Commons was ridiculous today",
-//         postUid: "u2",
-//         postText: "I waited so long just to get food that I almost gave up...",
-//         comments: [
-//           { uid: "u1", text: "Worcester gets so packed during lunch, it is actually wild." },
-//           { uid: "u2", text: "I feel like they need better traffic flow or more stations open." },
-//           { uid: "u3", text: "Sometimes the line looks worse than it actually is, but today was bad." }
-//         ],
-//       },
-//       {
-//         postId: "p3",
-//         question: "Should apps limit screen time by default?",
-//         postTitle: "Apps know exactly how to keep us scrolling",
-//         postUid: "u3",
-//         postText: "I think apps should have stronger default screen time limits...",
-//         comments: [
-//           { uid: "u1", text: "Default limits would help because most people never change settings." },
-//           { uid: "u2", text: "I agree, but I also feel like people should still be able to override it." },
-//           { uid: "u3", text: "Infinite scroll is the real villain here." }
-//         ],
-//       }
-//     ];
-
-//     // Create posts
-//     for (const post of prompts) {
-//       const postRef = db.collection("posts").doc(post.postId);
-
-//       batch.set(postRef, {
-//         question: post.question,
-//         postTitle: post.postTitle,
-//         postUid: post.postUid,
-//         postText: post.postText,
-//         createdAt: admin.firestore.FieldValue.serverTimestamp(),
-//       });
-
-//       // comments subcollection
-//       post.comments.forEach((comment, index) => {
-//         const commentRef = postRef
-//           .collection("comments")
-//           .doc(`c${index + 1}`);
-
-//         batch.set(commentRef, {
-//           uid: comment.uid,
-//           text: comment.text,
-//           createdAt: admin.firestore.FieldValue.serverTimestamp(),
-//         });
-//       });
-//     }
-
-//     await batch.commit();
-
-//     res.send("Database seeded successfully");
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).send("Error seeding database");
-//   }
-// });
-
-
+// == Newsfeed Page == //
 app.get("/", async (req, res) => {
   const currentUser = req.user.uid;
   try {
@@ -621,6 +478,46 @@ app.get("/", async (req, res) => {
   }
 });
 
+// == Comments == //
+app.get("/posts/:postId/comments", async (req, res) => {
+  const currentUser = req.user.uid;
+  const { postId } = req.params;
+
+  const usersSnapshot = await db.collection("users").get();
+
+  const userInfo = usersSnapshot.docs.map((doc) => ({
+    uid: doc.id,
+    ...doc.data(),
+  }));
+  const commentsSnapshot = await db
+    .collection("posts")
+    .doc(postId)
+    .collection("comments")
+    .orderBy("createdAt", "asc")
+    .get();
+
+  const comments = commentsSnapshot.docs.map((doc) => {
+    const data = doc.data();
+
+    return {
+      commentId: doc.id,
+      ...data,
+      createdAt: data.createdAt ? data.createdAt.toDate().toLocaleString() : "",
+    };
+  });
+
+  res.render("components/commentsList", {
+    layout: false,
+    comments,
+    userInfo,
+  });
+});
+
+
+// ------- Post Routes -------- //
+
+// == Post user answer to prompt == //
+
 app.post("/answer/:postId", async (req, res) => {
   const currentUser = req.user.uid;
   try {
@@ -680,6 +577,9 @@ app.post("/answer/:postId", async (req, res) => {
   }
 });
 
+
+// == Post new post == //
+
 app.post("/post", upload.single("image"), async (req, res) => {
   const currentUser = req.user.uid;
   try {
@@ -721,29 +621,7 @@ app.post("/post", upload.single("image"), async (req, res) => {
   }
 });
 
-app.post("/reset", async (req, res) => {
-  try {
-    const postsSnapshot = await db.collection("posts").get();
-
-    for (const postDoc of postsSnapshot.docs) {
-      const answersSnapshot = await postDoc.ref.collection("answers").get();
-
-      const batch = db.batch();
-
-      answersSnapshot.docs.forEach((doc) => {
-        batch.delete(doc.ref);
-      });
-
-      await batch.commit();
-    }
-
-    res.redirect("/");
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Error resetting");
-  }
-});
-
+// == Post a comment == //
 app.post("/comment/:postId", async (req, res) => {
   console.log("im posting comment");
 
@@ -780,6 +658,7 @@ app.post("/comment/:postId", async (req, res) => {
   }
 });
 
+// == Change avatar == //
 app.post("/profile/avatar", upload.single("avatar"), async (req, res) => {
   try {
     const currentUser = req.user.uid;
@@ -813,6 +692,7 @@ app.post("/profile/avatar", upload.single("avatar"), async (req, res) => {
   }
 });
 
+// == Edit profile == //
 app.post("/profile/edit", async (req, res) => {
   try {
     const currentUser = req.user.uid;
@@ -828,6 +708,120 @@ app.post("/profile/edit", async (req, res) => {
   } catch (err) {
     console.error("Error updating profile:", err);
     res.status(500).send("Failed to update profile");
+  }
+});
+
+// == seed to populate page == // 
+app.get("/seed", async (req, res) => {
+  res.send("Don't be naughty!")
+  return
+  try {
+    const batch = db.batch();
+
+    // ===== USERS =====
+    const userInfo = [
+      {
+        uid: "u1",
+        name: "Nina",
+        pronouns: "she/her",
+        avatar: "/images/nina.jpg",
+      },
+      {
+        uid: "u2",
+        name: "StudentUser23",
+        pronouns: "he/him",
+        avatar: "/images/student.jpg",
+      },
+      {
+        uid: "u3",
+        name: "Maya",
+        pronouns: "she/her",
+        avatar: "/images/maya.jpg",
+      },
+    ];
+
+    userInfo.forEach(user => {
+      const ref = db.collection("users").doc(user.uid);
+      batch.set(ref, {
+        name: user.name,
+        pronouns: user.pronouns,
+        avatar: user.avatar,
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+    });
+
+    // ===== POSTS =====
+    const prompts = [
+      {
+        postId: "p1",
+        question: "What do you think about ads on social media?",
+        postTitle: "Ads are making social media feel less human",
+        postUid: "u1",
+        postText: "I feel like every platform slowly turns into an ad machine...",
+        comments: [
+          { uid: "u1", text: "Yeah, it feels like the actual people are buried under sponsored posts." },
+          { uid: "u2", text: "I honestly stopped noticing ads because there are so many now." },
+          { uid: "u3", text: "The worst is when the ad looks like a normal post." }
+        ],
+      },
+      {
+        postId: "p2",
+        question: "Do you think long lines in public spaces are acceptable?",
+        postTitle: "The line at Worcester Commons was ridiculous today",
+        postUid: "u2",
+        postText: "I waited so long just to get food that I almost gave up...",
+        comments: [
+          { uid: "u1", text: "Worcester gets so packed during lunch, it is actually wild." },
+          { uid: "u2", text: "I feel like they need better traffic flow or more stations open." },
+          { uid: "u3", text: "Sometimes the line looks worse than it actually is, but today was bad." }
+        ],
+      },
+      {
+        postId: "p3",
+        question: "Should apps limit screen time by default?",
+        postTitle: "Apps know exactly how to keep us scrolling",
+        postUid: "u3",
+        postText: "I think apps should have stronger default screen time limits...",
+        comments: [
+          { uid: "u1", text: "Default limits would help because most people never change settings." },
+          { uid: "u2", text: "I agree, but I also feel like people should still be able to override it." },
+          { uid: "u3", text: "Infinite scroll is the real villain here." }
+        ],
+      }
+    ];
+
+    // Create posts
+    for (const post of prompts) {
+      const postRef = db.collection("posts").doc(post.postId);
+
+      batch.set(postRef, {
+        question: post.question,
+        postTitle: post.postTitle,
+        postUid: post.postUid,
+        postText: post.postText,
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+
+      // comments subcollection
+      post.comments.forEach((comment, index) => {
+        const commentRef = postRef
+          .collection("comments")
+          .doc(`c${index + 1}`);
+
+        batch.set(commentRef, {
+          uid: comment.uid,
+          text: comment.text,
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+      });
+    }
+
+    await batch.commit();
+
+    res.send("Database seeded successfully");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error seeding database");
   }
 });
 
