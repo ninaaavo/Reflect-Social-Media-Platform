@@ -46,7 +46,7 @@ app.set("view engine", "ejs");
 app.use(express.static("public"));
 app.use(express.json());
 
-const PORT = 8080;
+const PORT = process.env.PORT || 8080;
 const promptStarters = [
   "Describe a situation where",
   "How might someone feel when",
