@@ -336,38 +336,72 @@ app.post("/upload-image", upload.single("image"), async (req, res) => {
 // --------- Pages Routes --------------//
 
 app.get("/profile", async (req, res) => {
-  const currentUser = req.user.uid;
-  const usersSnapshot = await db.collection("users").get();
-  const postsSnapshot = await db
-    .collection("posts")
-    .where("postUid", "==", currentUser)
-    .orderBy("createdAt", "desc")
-    .get();
+  res.redirect(`/profile/${req.user.uid}`);
+});
 
-  const userInfo = usersSnapshot.docs.map((doc) => ({
-    uid: doc.id,
-    ...doc.data(),
-  }));
+app.get("/profile/:uid", async (req, res) => {
+  try {
+    const currentUser = req.user.uid;
+    const profileUid = req.params.uid;
+    const isOwnProfile = currentUser === profileUid;
 
-  const prompts = postsSnapshot.docs.map((doc) => {
-    const data = doc.data();
+    const usersSnapshot = await db.collection("users").get();
 
-    return {
-      postId: doc.id,
-      ...data,
-      createdAt: data.createdAt ? data.createdAt.toDate().toLocaleString() : "",
-    };
-  });
+    const userInfo = usersSnapshot.docs.map((doc) => ({
+      uid: doc.id,
+      ...doc.data(),
+    }));
 
-  console.log("The prompts are", prompts);
-  res.render("profile", {
-    currentPage: "profile",
-    currentUser,
-    userInfo,
-    prompts,
-    answers: {},
-    promptStarters,
-  });
+    const postsSnapshot = await db
+      .collection("posts")
+      .where("postUid", "==", profileUid)
+      .orderBy("createdAt", "desc")
+      .get();
+
+    const prompts = [];
+    const unlockedPosts = [];
+    const answers = {};
+
+    for (const doc of postsSnapshot.docs) {
+      const postId = doc.id;
+      const postData = doc.data();
+
+      const answerDoc = await db
+        .collection("posts")
+        .doc(postId)
+        .collection("answers")
+        .doc(currentUser)
+        .get();
+
+      if (answerDoc.exists) {
+        unlockedPosts.push(postId);
+        answers[postId] = answerDoc.data().answer;
+      }
+
+      prompts.push({
+        postId,
+        ...postData,
+        createdAt: postData.createdAt
+          ? postData.createdAt.toDate().toLocaleString()
+          : "",
+      });
+    }
+
+    res.render("profile", {
+      currentPage: "profile",
+      currentUser,
+      profileUid,
+      isOwnProfile,
+      userInfo,
+      prompts,
+      unlockedPosts,
+      answers,
+      promptStarters,
+    });
+  } catch (err) {
+    console.error("Error loading profile:", err);
+    res.status(500).send("Failed to load profile");
+  }
 });
 
 app.get("/posts/:postId/comments", async (req, res) => {

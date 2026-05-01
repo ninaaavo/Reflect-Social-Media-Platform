@@ -5,21 +5,33 @@
     <h2 class="write-post-title">Write a new post</h2>
 
     <form action="/post" method="POST" enctype="multipart/form-data" class="write-post-form" onsubmit="handlePostSubmit(event)">
-      <label>
-        Prompt question
-        <div class="prompt-builder">
-          <select name="questionStarter" required>
-            <option value="">Select a prompt style...</option>
-              <% promptStarters.forEach(starter => { %>
-                <option value="<%= starter %>"><%= starter %></option>
-              <% }) %>
-          </select>
+      <label class="prompt-label">
+        <div class="label-with-info">
+          Prompt question
+          <span class="info-icon">i
+            <span class="tooltip-text">
+              This is the question people must answer before seeing your post. 
+              Make it thoughtful and reflective to spark meaningful responses.
+            </span>
+          </span>
+        </div>
 
+        <div class="prompt-builder">
+          <select name="questionStarter" required class="question-starter">
+            <option value="">Select a prompt style...</option>
+            <% promptStarters.forEach(starter => { %>
+              <option value="<%= starter %>"><%= starter + " ..."%></option>
+            <% }) %>
+          </select>
+        </div>
+
+        <div>
           <input
             type="text"
             name="questionBody"
             placeholder="finish the sentence..."
             required
+            class="prompt-text"
           />
         </div>
       </label>
@@ -47,7 +59,7 @@
       </label>
 
       <label class="image-upload-label">
-        Add image optional
+        Add image (optional)
         <input
           type="file"
           name="image"

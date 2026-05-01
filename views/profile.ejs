@@ -1,23 +1,32 @@
 <section class="profile-section">
-  <% const user = userInfo.find(u => u.uid === currentUser); %>
-
+  <% const user = userInfo.find(u => u.uid === profileUid); %>
   <div class="profile-header-card">
-    <button class="avatar-edit-btn" onclick="openAvatarModal()" type="button">
+    <% if (isOwnProfile) { %>
+      <button class="avatar-edit-btn" onclick="openAvatarModal()" type="button">
+        <img
+          src="<%= user?.avatar || 'https://firebasestorage.googleapis.com/v0/b/reflect-cb8fd.firebasestorage.app/o/avatars%2Fdefault.jpg?alt=media&token=2db9e997-9a1a-4a4f-9add-39031ae1a727' %>"
+          alt="avatar"
+          class="profile-avatar"
+        />
+        <span class="avatar-hover-text">Change</span>
+      </button>
+    <% } else { %>
       <img
         src="<%= user?.avatar || 'https://firebasestorage.googleapis.com/v0/b/reflect-cb8fd.firebasestorage.app/o/avatars%2Fdefault.jpg?alt=media&token=2db9e997-9a1a-4a4f-9add-39031ae1a727' %>"
         alt="avatar"
         class="profile-avatar"
       />
-      <span class="avatar-hover-text">Change</span>
-    </button>
+    <% } %>
 
     <div class="profile-info">
       <h1 class="profile-name"><%= user?.name || "Unknown User" %></h1>
       <p class="profile-pronouns"><%= user?.pronouns || "" %></p>
 
-      <button type="button" class="edit-profile-btn" onclick="openProfileModal()">
-        Edit profile
-      </button>
+      <% if (isOwnProfile) { %>
+          <button type="button" class="edit-profile-btn" onclick="openProfileModal()">
+            Edit profile
+          </button>
+        <% } %>
     </div>
 
     <div id="profileModal" class="avatar-modal hidden">
@@ -80,24 +89,44 @@
   </div>
 
   <div class="profile-posts">
-    <% const userPosts = prompts.filter(p => p.postUid === currentUser); %>
+    <% const userPosts = prompts.filter(p => p.postUid === profileUid); %>
 
     <% if (userPosts.length > 0) { %>
       <% userPosts.forEach(post => { %>
-        <%- include("components/postCard", {
-          postTitle: post.postTitle,
-          postUid: post.postUid,
-          createdAt: post.createdAt,
-          postText: post.postText,
-          comments: post.comments,
-          userPromptAnswer: answers[post.postId] || "",
-          userInfo,
-          postId: post.postId,
-          imageUrl: post.imageUrl
-        }) %>
+
+        <% const isUnlocked = isOwnProfile || unlockedPosts.includes(post.postId); %>
+
+        <% if (isUnlocked) { %>
+          <!-- SHOW POST -->
+          <%- include("components/postCard", {
+            postTitle: post.postTitle,
+            postUid: post.postUid,
+            createdAt: post.createdAt,
+            postText: post.postText,
+            comments: post.comments,
+            userPromptAnswer: answers[post.postId] || "",
+            userInfo,
+            postId: post.postId,
+            imageUrl: post.imageUrl
+          }) %>
+
+        <% } else { %>
+          <!-- SHOW PROMPT (LOCKED) -->
+          <%- include("components/promptCard", {
+            postId: post.postId,
+            question: post.question,
+            userInfo,
+            postUid: post.postUid
+          }) %>
+        <% } %>
+
       <% }) %>
     <% } else { %>
-      <p class="no-posts">You have not made any posts yet.</p>
+      <p class="no-posts">
+        <%= isOwnProfile 
+          ? "You have not made any posts yet." 
+          : "This user has not made any posts yet." %>
+      </p>
     <% } %>
   </div>
 </section>

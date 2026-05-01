@@ -1,14 +1,17 @@
 <div class="comment"> 
-  <img 
-    class="comment-avatar" 
-    src="<%= user.avatar %>" 
-    alt="<%= user.name %>"
-  />
+  <a href="/profile/<%= user.uid %>">
+    <img 
+      class="comment-avatar" 
+      src="<%= user.avatar %>" 
+      alt="<%= user.name %>"
+    />
+  </a>
 
   <div class="comment-body">
     <div class="comment-header">
-      <span class="comment-username"><%= user.name %></span>
-      
+      <a href="/profile/<%= user.uid %>" class="comment-username">
+        <%= user.name %>
+      </a>
     </div>
 
     <div class="comment-text"><%= comment.text %></div>
