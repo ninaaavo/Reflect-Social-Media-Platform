@@ -57,8 +57,7 @@
     <button class="write-post-btn" onclick="openWritePost()">+</button>
   </div>
 
-  <%- include("components/writePostModal") %>
-
+  <%- include("components/writePostModal", { promptStarters }) %>
   <script src="/js/prompt.js" defer></script>
 
   <template id="comment-template">

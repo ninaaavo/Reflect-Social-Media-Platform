@@ -4,16 +4,28 @@
 
     <h2 class="write-post-title">Write a new post</h2>
 
-    <form action="/post" method="POST" enctype="multipart/form-data" class="write-post-form">
+    <form action="/post" method="POST" enctype="multipart/form-data" class="write-post-form" onsubmit="handlePostSubmit(event)">
       <label>
         Prompt question
-        <input
-          name="question"
-          type="text"
-          placeholder="What question should people answer first?"
-          required
-        />
+        <div class="prompt-builder">
+          <select name="questionStarter" required>
+            <option value="">Select a prompt style...</option>
+              <% promptStarters.forEach(starter => { %>
+                <option value="<%= starter %>"><%= starter %></option>
+              <% }) %>
+          </select>
+
+          <input
+            type="text"
+            name="questionBody"
+            placeholder="finish the sentence..."
+            required
+          />
+        </div>
       </label>
+
+      <!-- hidden final question -->
+      <input type="hidden" name="question" id="finalQuestion" />
 
       <label>
         Post title

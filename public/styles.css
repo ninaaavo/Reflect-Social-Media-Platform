@@ -681,6 +681,19 @@ body {
   display: none;
 }
 
+.prompt-builder {
+  display: flex;
+  gap: 8px;
+}
+
+.prompt-builder select {
+  flex: 1;
+}
+
+.prompt-builder input {
+  flex: 2;
+}
+
 /* -------------- Profile Main panel CSS --------------- */
 .profile-section {
   width: 100%;

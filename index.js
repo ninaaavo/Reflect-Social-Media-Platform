@@ -46,6 +46,14 @@ app.use(express.static("public"));
 app.use(express.json());
 
 const PORT = 8080;
+const promptStarters = [
+  "Describe a situation where",
+  "How might someone feel when",
+  "What could be different perspectives on",
+  "What might someone assume when they see",
+  "Why might someone react to",
+  "What are possible interpretations of",
+];
 
 
 // ------------ Set up Oauth -------------
@@ -358,6 +366,7 @@ app.get("/profile", async (req, res) => {
     userInfo,
     prompts,
     answers: {},
+    promptStarters,
   });
 });
 
@@ -571,6 +580,7 @@ app.get("/", async (req, res) => {
       answers,
       userInfo,
       currentUser,
+      promptStarters,
     });
   } catch (err) {
     console.error(err);

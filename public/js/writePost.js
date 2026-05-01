@@ -18,3 +18,16 @@ function previewImage(event) {
     preview.classList.add("hidden");
   }
 }
+
+function handlePostSubmit(event) {
+  const form = event.target;
+
+  const starter = form.querySelector("select[name='questionStarter']").value;
+  const body = form.querySelector("input[name='questionBody']").value;
+
+  const final = `${starter} ${body}`;
+  console.log("submit post, final question is:", final);
+
+  const hiddenInput = form.querySelector("#finalQuestion");
+  hiddenInput.value = final;
+}
